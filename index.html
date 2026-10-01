@@ -434,6 +434,9 @@ tr.click:hover td{background:var(--surface-2)}
 .seg label:has(input:checked){background:var(--orange);color:var(--navy);box-shadow:0 2px 8px rgba(245,165,36,.3)}
 .arla-box{border:1px solid var(--blue);background:var(--blue-soft);border-radius:12px;padding:12px 14px;display:grid;gap:10px}
 .arla-t{font-weight:800;color:var(--blue);font-size:14px}
+.tiles{grid-template-columns:repeat(6,minmax(0,1fr))}
+@media (max-width:1200px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -974,20 +977,20 @@ const TIPOS_VEIC=['Cavalo mecânico','Truck','Toco','Van','Utilitário','Leve'];
 const MOTIVOS=['Abastecimento complementar','Retorno ao posto','Manutenção','Erro no abastecimento anterior','Teste','Deslocamento excepcional','Outro'];
 const UFS=['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 const STATUS_AB={VALIDADO:['Validado','green'],VERIFICAR:['Para verificação','orange'],PENDENTE_APROVACAO:['Pendente de aprovação','yellow'],REPROVADO:['Reprovado','red'],EXCLUIDO:['Excluído','gray']};
-const FLAG_L={ARLA_CAPACIDADE:'ARLA acima do tanque',ARLA_PROPORCAO:'ARLA acima do esperado',ARLA_PRECO_ULTIMO:'Preço ARLA diferente',PRECO_ULTIMO:'Preço diferente do último',KM_MENOR:'KM menor',KM_SEQUENCIA:'Sequência de KM',KM_BAIXO:'KM muito baixo',KM_ALTO:'KM muito alto',VARIACAO:'Fora do padrão',DIGITACAO:'Possível digitação',CAPACIDADE:'Acima da capacidade',PRECO:'Preço fora do padrão',DUPLICIDADE:'Possível duplicidade'};
-const FLAG_SEV={ARLA_CAPACIDADE:'red',ARLA_PROPORCAO:'orange',ARLA_PRECO_ULTIMO:'orange',PRECO_ULTIMO:'orange',KM_MENOR:'red',KM_SEQUENCIA:'red',KM_ALTO:'red',VARIACAO:'red',CAPACIDADE:'red',KM_BAIXO:'orange',PRECO:'orange',DIGITACAO:'yellow',DUPLICIDADE:'yellow'};
-const FLAG_GRUPO={ARLA_CAPACIDADE:'verificacao',ARLA_PROPORCAO:'verificacao',ARLA_PRECO_ULTIMO:'verificacao',PRECO_ULTIMO:'verificacao',KM_MENOR:'bloqueado',KM_SEQUENCIA:'bloqueado',KM_ALTO:'verificacao',VARIACAO:'verificacao',CAPACIDADE:'verificacao',KM_BAIXO:'verificacao',PRECO:'verificacao',DIGITACAO:'erro',DUPLICIDADE:'erro'};
-const GRUPOS={bloqueado:['Abastecimentos bloqueados','🔴','red'],verificacao:['Abastecimentos para verificação','🟠','orange'],erro:['Possíveis erros','🟡','yellow'],alteracao:['Alterações realizadas','🔐','blue'],excecao:['Exceções aguardando aprovação','⚠️','yellow']};
+const FLAG_L={KM_SUSPEITO:'KM suspeito',ARLA_CAPACIDADE:'ARLA acima do tanque',ARLA_PROPORCAO:'ARLA acima do esperado',ARLA_PRECO_ULTIMO:'Preço ARLA diferente',PRECO_ULTIMO:'Preço diferente do último',KM_MENOR:'KM menor',KM_SEQUENCIA:'Sequência de KM',KM_BAIXO:'KM muito baixo',KM_ALTO:'KM muito alto',VARIACAO:'Fora do padrão',DIGITACAO:'Possível digitação',CAPACIDADE:'Acima da capacidade',PRECO:'Preço fora do padrão',DUPLICIDADE:'Possível duplicidade'};
+const FLAG_SEV={KM_SUSPEITO:'red',ARLA_CAPACIDADE:'red',ARLA_PROPORCAO:'orange',ARLA_PRECO_ULTIMO:'orange',PRECO_ULTIMO:'orange',KM_MENOR:'red',KM_SEQUENCIA:'red',KM_ALTO:'red',VARIACAO:'red',CAPACIDADE:'red',KM_BAIXO:'orange',PRECO:'orange',DIGITACAO:'yellow',DUPLICIDADE:'yellow'};
+const FLAG_GRUPO={KM_SUSPEITO:'bloqueado',ARLA_CAPACIDADE:'verificacao',ARLA_PROPORCAO:'verificacao',ARLA_PRECO_ULTIMO:'verificacao',PRECO_ULTIMO:'verificacao',KM_MENOR:'bloqueado',KM_SEQUENCIA:'bloqueado',KM_ALTO:'verificacao',VARIACAO:'verificacao',CAPACIDADE:'verificacao',KM_BAIXO:'verificacao',PRECO:'verificacao',DIGITACAO:'erro',DUPLICIDADE:'erro'};
+const GRUPOS={preco:['Preço alterado no posto','💲','orange'],bloqueado:['Abastecimentos bloqueados','🔴','red'],verificacao:['Abastecimentos para verificação','🟠','orange'],erro:['Possíveis erros','🟡','yellow'],alteracao:['Alterações realizadas','🔐','blue'],excecao:['Exceções aguardando aprovação','⚠️','yellow']};
 const SEV_E={red:'🔴',orange:'🟠',yellow:'🟡',blue:'🔐'};
 const PERFIS={admin:'Administrador',gestor:'Gestor',operador:'Operador'};
-const DEF_CFG={id:'geral',arlaPctMax:10,precoUltimoAtivo:true,precoUltimoTol:0,distMin:50,distMax:1000,pctMax:80,exigirJustificativa:true,exigirAprovacao:true,permitirExcecoes:true,capacidadeAcao:'justificar',precoPct:10,dupJanela:30};
+const DEF_CFG={id:'geral',precoPostoAtivo:true,precoPostoTol:0.01,precoPostoReducao:false,mesInicio:21,mesRef:'fim',arlaPctMax:10,precoUltimoAtivo:true,precoUltimoTol:0,distMin:50,distMax:1000,pctMax:80,exigirJustificativa:true,exigirAprovacao:true,permitirExcecoes:true,capacidadeAcao:'justificar',precoPct:10,dupJanela:30};
 const LEVEL={confirm:1,justify:2,except:3,hard:4};
-const PERIODOS=[['mes','Mês'],['7','Últimos 7 dias'],['30','Últimos 30 dias'],['90','Últimos 90 dias'],['tudo','Todo o período'],['custom','Personalizado']];
+const PERIODOS=[['mes','Mês'],['dia','Um dia'],['7','Últimos 7 dias'],['30','Últimos 30 dias'],['90','Últimos 90 dias'],['tudo','Todo o período'],['custom','Personalizado']];
 
 /* ================= BANCO DE DADOS ================= */
 const TABLES=['usuarios','veiculos','motoristas','postos','abastecimentos','historico','alertas','excecoes','auditoria','config','resets'];
 const T={};TABLES.forEach(t=>T[t]=[]);
-let DBH=null,BACKEND='local',DLH=null,SB=null,SBCH=null,SYS_EMPTY=false;
+let DBH=null,BACKEND='local',DLH=null,SB=null,SBCH=null,SYS_EMPTY=false,BULK=null;
 const colName=t=>'kmlog_'+t;
 const writeQ={};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -1013,6 +1016,7 @@ function saveLocal(t){try{localStorage.setItem(colName(t),JSON.stringify(T[t]))}
 function put(t,rec){
   const i=T[t].findIndex(x=>x.id===rec.id);
   if(i>=0)T[t][i]=rec;else T[t].push(rec);
+  if(BULK){(BULK[t]||(BULK[t]=new Map())).set(rec.id,rec);return Promise.resolve()}
   if(BACKEND==='supabase'){
     const key=t+'/'+rec.id,data=clone(rec);
     const p=(writeQ[key]||Promise.resolve()).then(async()=>{const {error}=await SB.from(t).upsert({id:rec.id,dados:data});if(error)throw error}).catch(dbFail);
@@ -1106,7 +1110,7 @@ async function pool(tasks,n=6,onProg){
 
 /* ================= ACESSO ================= */
 let CU=null;
-const G_PERMS=['dashboard','abast.novo','abast.ver','abast.editar','abast.verificar','alertas','auditoria','relatorios','frota.ver','km','postos.ver','alteracoes','alertas.resolver'];
+const G_PERMS=['precos','consumo','dashboard','abast.novo','abast.ver','abast.editar','abast.verificar','alertas','auditoria','relatorios','frota.ver','km','postos.ver','alteracoes','alertas.resolver'];
 const O_PERMS=['abast.novo','abast.ver','km'];
 function can(p){
   if(!CU)return false;
@@ -1145,9 +1149,10 @@ const INATIVOS=['EXCLUIDO','REPROVADO'];
 const ck=a=>a.data+' '+a.hora+' '+String(a.seq||0).padStart(7,'0');
 const byChrono=(a,b)=>ck(a)<ck(b)?-1:ck(a)>ck(b)?1:0;
 const ativos=()=>T.abastecimentos.filter(a=>!INATIVOS.includes(a.status));
-function chainOf(vid,ex){return ativos().filter(a=>a.veiculoId===vid&&a.id!==ex&&a.tipo!=='ARLA'&&!(a.flags||[]).includes('KM_MENOR')).sort(byChrono)}
+const foraSeq=a=>(a.flags||[]).some(f=>f==='KM_MENOR'||f==='KM_SUSPEITO');
+function chainOf(vid,ex){return ativos().filter(a=>a.veiculoId===vid&&a.id!==ex&&a.tipo!=='ARLA'&&!foraSeq(a)).sort(byChrono)}
 /* todos os registros com KM (combustível e somente ARLA) */
-function allKmOf(vid,ex){return ativos().filter(a=>a.veiculoId===vid&&a.id!==ex&&!(a.flags||[]).includes('KM_MENOR')).sort(byChrono)}
+function allKmOf(vid,ex){return ativos().filter(a=>a.veiculoId===vid&&a.id!==ex&&!foraSeq(a)).sort(byChrono)}
 function neighborsAll(vid,data,hora,ex){
   const ch=allKmOf(vid,ex),key=nKey(data,hora,ex);let prev=null,next=null;
   for(const a of ch){if(ck(a)<=key)prev=a;else{next=a;break}}
@@ -1279,10 +1284,22 @@ function validar(d,{ex=null,isEdit=false}={}){
         msg:'A quantidade de ARLA 32 é maior que a capacidade do tanque de ARLA cadastrada para este veículo.',
         dados:[['Tanque de ARLA',nf(v.capacidadeArla,0)+' L'],['ARLA informado',nf(arlaL(d))+' L'],['Excesso',nf(arlaL(d)-v.capacidadeArla)+' L']],statusReg:c.capacidadeAcao==='bloquear'?'BLOQUEADO':'PENDENTE DE VALIDAÇÃO'});
     if(!isArla&&d.litros>0){
-      const pc=arlaL(d)/d.litros*100,lim=+c.arlaPctMax||10;
-      if(pc>lim)iss.push({code:'ARLA_PROPORCAO',level:'confirm',sev:'orange',icon:'🟠',titulo:'ARLA ACIMA DO ESPERADO',
-        msg:'A quantidade de ARLA 32 está alta em relação ao combustível abastecido.',
-        dados:[['Combustível',nf(d.litros)+' L'],['ARLA 32',nf(arlaL(d))+' L'],['ARLA / combustível',nf(pc,1)+'%'],['Limite configurado',nf(lim,0)+'%']],
+      // o ARLA não é completado em todo abastecimento: compara o acumulado dos últimos abastecimentos
+      const lim=+c.arlaPctMax||10,key=nKey(d.data,d.hora,ex);
+      const hist=allKmOf(d.veiculoId,ex).filter(a=>ck(a)<=key);
+      const combs=hist.filter(a=>a.tipo!=='ARLA'&&a.litros>0).slice(-5);
+      let pc,limUsado=lim,dados;
+      if(combs.length>=2){
+        const ini=ck(combs[0]),win=hist.filter(a=>ck(a)>=ini);
+        const dsl=sum(win,a=>a.tipo==='ARLA'?0:a.litros)+d.litros,arl=sum(win,arlaL)+arlaL(d);
+        pc=arl/dsl*100;
+        dados=[['Período analisado',dBR(combs[0].data)+' a '+dBR(d.data)+' ('+(combs.length+1)+' abastecimentos)'],['Combustível no período',nf(dsl,0)+' L'],['ARLA no período',nf(arl,1)+' L'],['ARLA / combustível',nf(pc,1)+'%'],['ARLA neste abastecimento',nf(arlaL(d))+' L'],['Limite configurado',nf(lim,0)+'%']];
+      }else{
+        pc=arlaL(d)/d.litros*100;limUsado=lim*2;
+        dados=[['Combustível',nf(d.litros)+' L'],['ARLA 32',nf(arlaL(d))+' L'],['ARLA / combustível',nf(pc,1)+'%'],['Limite (sem histórico)',nf(limUsado,0)+'%']];
+      }
+      if(pc>limUsado)iss.push({code:'ARLA_PROPORCAO',level:'confirm',sev:'orange',icon:'🟠',titulo:'ARLA ACIMA DO ESPERADO',
+        msg:'O consumo de ARLA 32 está alto em relação ao combustível abastecido.',dados,
         pergunta:'Você confirma a quantidade de ARLA 32 informada?'});
     }
     if(c.precoUltimoAtivo&&d.arlaValorLitro>0&&d.postoId){
@@ -1412,18 +1429,37 @@ function hbars(items,{fmt=v=>brl(v),color='var(--navy-3)'}={}){
 const PALETTE=['#3b5bdb','#f5a524','#27774A','#8B3FB0','#BF3326','#0E8A8A','#A57C00'];
 
 /* ================= FILTROS ================= */
-function newFilter(extra={}){return {periodo:'mes',mes:today().slice(0,7),de:'',ate:'',veiculoId:'',motoristaId:'',postoId:'',combustivel:'',...extra}}
+/* ===== mês de fechamento (ex.: dia 21 a dia 20 do mês seguinte) ===== */
+const diaFech=()=>{const d=+cfgG().mesInicio||1;return d>=2&&d<=28?d:1};
+function mesRange(m){
+  const d=diaFech();if(d===1)return [m+'-01',m+'-31'];
+  let [y,mo]=m.split('-').map(Number),sY=y,sM=mo,eY=y,eM=mo;
+  if(cfgG().mesRef==='inicio'){eM++;if(eM>12){eM=1;eY++}}else{sM--;if(!sM){sM=12;sY--}}
+  return [sY+'-'+pad(sM)+'-'+pad(d),eY+'-'+pad(eM)+'-'+pad(d-1)];
+}
+function competencia(data){
+  const d=diaFech();if(d===1)return data.slice(0,7);
+  let [y,mo,dd]=data.split('-').map(Number);
+  if(cfgG().mesRef==='inicio'){if(dd<d){mo--;if(!mo){mo=12;y--}}}else{if(dd>=d){mo++;if(mo>12){mo=1;y++}}}
+  return y+'-'+pad(mo);
+}
+const mesAtual=()=>competencia(today());
+const inMes=(data,m)=>{const [a,b]=mesRange(m);return data>=a&&data<=b};
+const faixaMes=m=>{const [a,b]=mesRange(m);return dBR(a).slice(0,5)+' a '+dBR(b).slice(0,5)};
+const mesLabel=m=>mLong(m)+(diaFech()>1?' ('+faixaMes(m)+')':'');
+function newFilter(extra={}){return {periodo:'mes',mes:mesAtual(),diaDe:'',diaAte:'',dia:today(),de:'',ate:'',veiculoId:'',motoristaId:'',postoId:'',combustivel:'',...extra}}
 const S={
   dash:newFilter(),lista:newFilter({status:'',q:''}),rel:newFilter({tipo:'abast'}),perf:newFilter(),
-  alt:{mes:today().slice(0,7)},aud:{de:'',ate:'',usuario:'',acao:'',q:''},
+  alt:{mes:mesAtual()},aud:{de:'',ate:'',usuario:'',acao:'',q:''},
   alertas:{grupo:'',status:'ABERTO',veiculoId:''},
   tab:{veic:'cad',mot:'cad',posto:'cad'},search:{veic:'',mot:'',posto:'',user:'',hist:''},
-  km:{veiculoId:''},cmp:null
+  km:{veiculoId:''},cmp:null,cons:null
 };
 function rangeOf(f){
   const t=today();
   switch(f.periodo){
-    case 'mes':return [f.mes+'-01',f.mes+'-31'];
+    case 'mes':return mesRange(f.mes);
+    case 'dia':return [f.dia||t,f.dia||t];
     case '7':return [addDays(t,-6),t];
     case '30':return [addDays(t,-29),t];
     case '90':return [addDays(t,-89),t];
@@ -1432,7 +1468,8 @@ function rangeOf(f){
   }
 }
 function periodLabel(f){
-  if(f.periodo==='mes')return mLong(f.mes);
+  if(f.periodo==='mes')return mesLabel(f.mes);
+  if(f.periodo==='dia')return dBR(f.dia||today());
   if(f.periodo==='custom')return (f.de?dBR(f.de):'início')+' a '+(f.ate?dBR(f.ate):'hoje');
   return (PERIODOS.find(p=>p[0]===f.periodo)||['',''])[1];
 }
@@ -1444,10 +1481,11 @@ const inRangeIso=(iso,f)=>{const [de,ate]=rangeOf(f),d=localDate(iso);return d>=
 function filterBar(k,{skip=[],extra=''}={}){
   const f=S[k];
   const vs=[...T.veiculos].sort((a,b)=>a.placa.localeCompare(b.placa));
-  const act=f.periodo!=='mes'||f.mes!==today().slice(0,7)||f.veiculoId||f.motoristaId||f.postoId||f.combustivel||(f.status)||(f.q);
+  const act=f.periodo!=='mes'||f.mes!==mesAtual()||f.veiculoId||f.motoristaId||f.postoId||f.combustivel||(f.status)||(f.q);
   return `<div class="filters">
     <label class="fl">Período<select data-f="${k}.periodo">${opts(PERIODOS,f.periodo)}</select></label>
-    ${f.periodo==='mes'?`<label class="fl">Mês<input type="month" data-f="${k}.mes" value="${esc(f.mes)}"></label>`:''}
+    ${f.periodo==='mes'?`<label class="fl" title="${diaFech()>1?'Mês de fechamento: '+faixaMes(f.mes):''}">${diaFech()>1?'Mês de fechamento <span style="font-weight:500">('+faixaMes(f.mes)+')</span>':'Mês'}<input type="month" data-f="${k}.mes" value="${esc(f.mes)}"></label>`:''}
+    ${f.periodo==='dia'?`<label class="fl">Dia<input type="date" data-f="${k}.dia" value="${esc(f.dia||today())}" max="${today()}"></label>`:''}
     ${f.periodo==='custom'?`<label class="fl">De<input type="date" data-f="${k}.de" value="${esc(f.de)}"></label><label class="fl">Até<input type="date" data-f="${k}.ate" value="${esc(f.ate)}"></label>`:''}
     ${skip.includes('veiculoId')?'':`<label class="fl">Placa<select data-f="${k}.veiculoId"><option value="">Todas</option>${opts(vs.map(v=>[v.id,v.placa]),f.veiculoId)}</select></label>`}
     ${skip.includes('motoristaId')?'':`<label class="fl">Motorista<select data-f="${k}.motoristaId"><option value="">Todos</option>${opts([...T.motoristas].sort((a,b)=>a.nome.localeCompare(b.nome)).map(m=>[m.id,m.nome]),f.motoristaId)}</select></label>`}
@@ -1492,6 +1530,7 @@ const ICONS={
  user:'<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'
 };
 Object.assign(ICONS,{
+ upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
  money:'<circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.7 3 2 3 .9 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5"/><path d="M12 6v2M12 16v2"/>',
  drop:'<path d="M12 2.7s6 6.3 6 11.3a6 6 0 0 1-12 0c0-5 6-11.3 6-11.3z"/>',
  receipt:'<path d="M4 2v20l3-2 3 2 2-2 2 2 3-2 3 2V2l-3 2-3-2-2 2-2-2-3 2z"/><path d="M8 9h8M8 13h6"/>',
@@ -1505,7 +1544,8 @@ const icon=(k,c)=>`<span class="ic ${c}"><svg viewBox="0 0 24 24">${ICONS[k]}</s
 const secHead=(k,c,t,s,right='')=>`<div class="card-h"><div class="ch">${icon(k,c)}<div><h3>${esc(t)}</h3>${s?`<p>${esc(s)}</p>`:''}</div></div>${right}</div>`;
 const MENU=[
   {r:'dashboard',i:'dash',l:'Dashboard'},{r:'novo',i:'fuel',l:'Novo abastecimento'},{r:'historico',i:'hist',l:'Histórico'},{r:'alteracoes',i:'hist',l:'Alterações'},
-  {r:'veiculos',i:'truck',l:'Veículos'},{r:'motoristas',i:'users',l:'Motoristas'},{r:'postos',i:'pin',l:'Postos'},{r:'km',i:'gauge',l:'Histórico de KM'},
+  {r:'veiculos',i:'truck',l:'Veículos'},{r:'motoristas',i:'users',l:'Motoristas'},{r:'postos',i:'pin',l:'Postos'},{r:'precos',i:'tag',l:'Preços por posto',cntPreco:true},{r:'km',i:'gauge',l:'Histórico de KM'},{r:'consumo',i:'drop',l:'Consumo (km/L)'},
+  {r:'importar',i:'upload',l:'Importar planilha'},
   {r:'alertas',i:'alert',l:'Alertas',cnt:true},{r:'auditoria',i:'shield',l:'Auditoria'},{r:'relatorios',i:'chart',l:'Relatórios'},{r:'config',i:'gear',l:'Configurações'},{r:'usuarios',i:'user',l:'Usuários'}
 ];
 const route=()=>(location.hash.replace(/^#\/?/,'').split('?')[0])||'';
@@ -1513,15 +1553,15 @@ function go(r){if(location.hash==='#/'+r)render();else location.hash='#/'+r}
 function homeRoute(){return can('dashboard')?'dashboard':'novo'}
 function renderNav(){
   const cur=route(),okR=r=>ROUTES[r]&&can(ROUTES[r].p);
-  const open=openAlertsFor().length;
+  const open=openAlertsFor().length,nPreco=openAlertsFor().filter(a=>a.tipo==='PRECO_POSTO').length;
   let h='';
   for(const m of MENU){
     if(!okR(m.r))continue;
-    h+=`<a href="#/${m.r}" class="${cur===m.r?'on':''}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[m.i]}</svg><span>${esc(m.l)}</span>${m.cnt&&open?`<span class="cnt">${open}</span>`:''}</a>`;
+    h+=`<a href="#/${m.r}" class="${cur===m.r?'on':''}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[m.i]}</svg><span>${esc(m.l)}</span>${m.cnt&&open?`<span class="cnt">${open}</span>`:''}${m.cntPreco&&nPreco?`<span class="cnt" style="background:var(--orange-dark)">${nPreco}</span>`:''}</a>`;
   }
   $('#nav').innerHTML=h;
-  const ab=ativos(),mesA=today().slice(0,7);
-  $('#sideStats').innerHTML=`<div><b>${ab.filter(a=>a.data.startsWith(mesA)).length}</b> abastecimentos no mês</div><div><b>${T.veiculos.filter(v=>v.status==='ATIVO').length}</b> veículos ativos</div>${can('alertas')?`<div><b>${open}</b> alertas em aberto</div>`:''}`;
+  const ab=ativos(),mesA=mesAtual();
+  $('#sideStats').innerHTML=`<div><b>${ab.filter(a=>inMes(a.data,mesA)).length}</b> abastecimentos no mês</div><div><b>${T.veiculos.filter(v=>v.status==='ATIVO').length}</b> veículos ativos</div>${can('alertas')?`<div><b>${open}</b> alertas em aberto</div>`:''}`;
   const ta=$('#topAction');if(ta)ta.hidden=!can('abast.novo')||cur==='novo';
   $('#sideUser').innerHTML=`<strong>${esc(CU.nome)}</strong>${esc(PERFIS[CU.perfil])}${CU.perfil==='gestor'&&CU.podeAprovar?' (aprova exceções)':''}<div style="margin-top:8px"><button class="btn sm ghost" style="color:#fff;border-color:rgba(255,255,255,.15)" data-act="logout">Sair</button></div><div class="side-foot">KM Log &copy; ${new Date().getFullYear()}</div>`;
 }
@@ -1655,7 +1695,14 @@ function conviteModal(){
       await afterSbLogin();
     }}]});
 }
+function ajustarMesFiltros(antes){
+  const m=mesAtual();
+  ['dash','lista','rel','perf','cons','prc'].forEach(k=>{if(S[k]&&(!S[k].mes||S[k].mes===antes))S[k].mes=m});
+  if(!S.alt.mes||S.alt.mes===antes)S.alt.mes=m;
+}
+let mesFiltrosAjustado=false;
 function enterApp(){
+  if(!mesFiltrosAjustado){ajustarMesFiltros(today().slice(0,7));mesFiltrosAjustado=true}
   $('#boot').hidden=true;$('#login').hidden=true;$('#shell').hidden=false;
   if(!ROUTES[route()]||!can(ROUTES[route()].p))location.replace('#/'+homeRoute());
   render();
@@ -1804,17 +1851,56 @@ function createException(a,r,just,d){
   return e;
 }
 function alertsFromIssues(a,r){
-  r.iss.forEach(i=>{
+  r.iss.filter(i=>i.code!=='PRECO_ULTIMO'&&i.code!=='ARLA_PRECO_ULTIMO').forEach(i=>{
     addAlert({tipo:i.code,grupo:FLAG_GRUPO[i.code]||'verificacao',severidade:i.sev,emoji:SEV_E[i.sev],titulo:i.titulo==='ABASTECIMENTO BLOQUEADO'?'KM INCOMPATÍVEL':i.titulo,abastId:a.id,placa:a.placa,veiculoId:a.veiculoId,
       detalhes:[['Placa',a.placa],...i.dados.filter(x=>x[0]!=='Placa')],statusRegistro:(STATUS_AB[a.status]||[a.status])[0].toUpperCase()});
   });
+}
+/* ===== alteração de preço no mesmo posto ===== */
+function precoChecks(a){
+  const l=[];
+  if(a.tipo!=='ARLA'&&a.valorLitro>0)l.push({comb:a.combustivel,preco:a.valorLitro,lit:a.litros,get:x=>x.tipo!=='ARLA'&&x.combustivel===a.combustivel&&x.valorLitro>0?x.valorLitro:null});
+  if(arlaL(a)>0&&a.arlaValorLitro>0)l.push({comb:ARLA,preco:a.arlaValorLitro,lit:a.arlaLitros,get:x=>arlaL(x)>0&&x.arlaValorLitro>0?x.arlaValorLitro:null});
+  return l;
+}
+function alertaPrecoPosto(a){
+  const c=cfgG();if(c.precoPostoAtivo===false||!a.postoId)return;
+  const tol=isNum(+c.precoPostoTol)?+c.precoPostoTol:0.01;
+  for(const ch of precoChecks(a)){
+    const ref=ativos().filter(x=>x.id!==a.id&&x.postoId===a.postoId&&ch.get(x)!=null&&ck(x)<ck(a)).sort(byChrono).pop();
+    if(!ref)continue;
+    const ant=ch.get(ref),dif=r3(ch.preco-ant);
+    if(Math.abs(dif)<0.0005||Math.abs(dif)+1e-9<tol)continue;
+    if(dif<0&&!c.precoPostoReducao)continue;
+    const pc=dif/ant*100;
+    addAlert({tipo:'PRECO_POSTO',grupo:'preco',severidade:dif>0?'orange':'blue',emoji:'💲',titulo:(dif>0?'AUMENTO':'REDUÇÃO')+' DE PREÇO NO POSTO'+(ch.comb===ARLA?' – ARLA 32':''),
+      abastId:a.id,refId:ref.id,placa:a.placa,veiculoId:a.veiculoId,postoId:a.postoId,combustivel:ch.comb,precoAnterior:ant,precoNovo:ch.preco,dif,dataAbast:a.data,
+      detalhes:[['Posto',pNome(a.postoId)],['Combustível',ch.comb],['Preço anterior',brl(ant)+' em '+dBR(ref.data)+' ('+ref.placa+')'],['Preço novo',brl(ch.preco)+' em '+dBR(a.data)+' ('+a.placa+')'],['Diferença por litro',(dif>0?'+ ':'- ')+brl(Math.abs(dif))],['Variação',pctf(pc)],['Impacto neste abastecimento',brl(r2(dif*ch.lit))+' em '+nf(ch.lit)+' L']],
+      statusRegistro:dif>0?'NEGOCIAR COM O POSTO':'REDUÇÃO DE PREÇO'});
+  }
+}
+const RESULT_NEG=['Posto voltou ao preço anterior','Desconto negociado','Aumento aceito (preço de mercado)','Trocar de posto','Sem retorno do posto','Outro'];
+function negociarPreco(id){
+  const al=T.alertas.find(x=>x.id===id);if(!al)return;
+  openModal({title:'Registrar negociação com o posto',tone:'navy',html:`${kvHtml(al.detalhes||[])}
+    <label class="field">Resultado<select id="ngRes"><option value="">Selecione</option>${opts(RESULT_NEG,'')}</select></label>
+    <label class="field">Novo preço combinado (R$/L, opcional)<input id="ngPreco" inputmode="decimal" placeholder="ex.: 6,30"></label>
+    <label class="field">Observação (obrigatória)<textarea id="ngObs" rows="3" placeholder="Com quem falou, o que foi combinado, prazo…"></textarea></label>`,
+    actions:[{label:'Cancelar',kind:'ghost',on:closeModal},{label:'Salvar negociação',kind:'primary',on:()=>{
+      const res=val('ngRes'),obs=val('ngObs'),pr=parseDec(val('ngPreco'));
+      if(!res){toast('Selecione o resultado.','err');return}if(!obs){toast('Descreva a negociação.','err');return}
+      const nota=res+(pr>0?' – preço combinado '+brl(pr):'')+': '+obs;
+      Object.assign(al,{status:'RESOLVIDO',resolvidoPor:CU.nome,resolvidoEm:new Date().toISOString(),notaResolucao:nota,negociacao:{resultado:res,precoCombinado:pr>0?pr:null,obs}});put('alertas',al);
+      addAudit({acao:'Negociação de preço',entidade:'Posto',registro:pNome(al.postoId)+' – '+(al.combustivel||''),campo:'Preço por litro',anterior:brl(al.precoAnterior),novo:brl(al.precoNovo),motivo:nota,status:'RESOLVIDO',refId:al.abastId||''});
+      closeModal();toast('Negociação registrada.','ok');
+    }}]});
 }
 async function registrarNovo(d,r,just){
   const opId=uid(),now=new Date().toISOString();
   const c=calcular(d,r.prev);
   const a={id:uid(),seq:nextSeq(),data:d.data,hora:d.hora,veiculoId:d.veiculoId,placa:r.v.placa,motoristaId:d.motoristaId,postoId:d.postoId,combustivel:d.combustivel,km:d.km,
     litros:d.litros,valorLitro:d.valorLitro,...c,tipo:d.tipo||'COMB',arlaLitros:arlaL(d),arlaValorLitro:arlaL(d)>0?(+d.arlaValorLitro||0):0,arlaTotal:arlaL(d)>0?r2(arlaL(d)*d.arlaValorLitro):0,nota:d.nota,obs:d.obs,flags:r.iss.map(i=>i.code),status:statusFor(r,just),criadoPor:CU.id,criadoPorNome:CU.nome,criadoEm:now,alteradoEm:null};
-  if(a.flags.includes('KM_MENOR')){a.kmAnterior=r.baseKm;a.kmPercorrido=d.km-r.baseKm;a.consumo=null;a.custoKm=null}
+  if(a.flags.includes('KM_MENOR')||a.flags.includes('KM_SUSPEITO')){a.kmAnterior=r.baseKm;a.kmPercorrido=d.km-r.baseKm;a.consumo=null;a.custoKm=null}
   if(a.tipo==='ARLA'){a.combustivel=ARLA;a.litros=0;a.valorLitro=0;a.valorTotal=0;a.kmAnterior=r.baseKm;a.kmPercorrido=null;a.consumo=null;a.custoKm=null}
   await put('abastecimentos',a);
   addHist(a,{acao:'Criação',campo:'Registro',novo:'Abastecimento criado com status '+STATUS_AB[a.status][0],opId});
@@ -1823,6 +1909,7 @@ async function registrarNovo(d,r,just){
   r.iss.filter(i=>i.level==='confirm').forEach(i=>addAudit({acao:'Confirmação',registro:regLabel(a),campo:i.titulo,novo:'Confirmado',motivo:i.pergunta||'',status:'CONFIRMADO',refId:a.id}));
   if(just){createException(a,r,just,d);addHist(a,{acao:'Justificativa',campo:'Exceção',novo:just.motivo,motivo:just.obs,opId})}
   alertsFromIssues(a,r);
+  alertaPrecoPosto(a);
   recomputeChain(a.veiculoId,opId,'lançamento do abastecimento #'+a.seq,a.id);
   return a;
 }
@@ -1870,16 +1957,17 @@ function pgDash(){
   const [de,ate]=rangeOf(f);
   const days=[...new Set(list.map(a=>a.data))].sort();
   const monthly=days.length>62;
-  const keys=monthly?[...new Set(list.map(a=>a.data.slice(0,7)))].sort():days;
-  const serie=keys.map(kk=>sum(list.filter(a=>monthly?a.data.startsWith(kk):a.data===kk),a=>a.valorTotal));
+  const keys=monthly?[...new Set(list.map(a=>competencia(a.data)))].sort():days;
+  const serie=keys.map(kk=>sum(list.filter(a=>monthly?competencia(a.data)===kk:a.data===kk),a=>a.valorTotal));
   const porPosto=aggBy(list,a=>a.postoId).sort((a,b)=>b.totGeral-a.totGeral).map(g=>({label:pNome(g.k),value:g.totGeral}));
   const porVeic=aggBy(list,a=>a.veiculoId).sort((a,b)=>b.totGeral-a.totGeral).slice(0,8).map(g=>({label:vNome(g.k),value:g.totGeral}));
   const incVeic={};T.alertas.filter(a=>a.veiculoId&&a.grupo!=='alteracao'&&inRangeIso(a.dataHora,f)).forEach(a=>incVeic[a.veiculoId]=(incVeic[a.veiculoId]||0)+1);
   const incItems=Object.entries(incVeic).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([id,n])=>({label:vNome(id),value:n,color:'var(--red)'}));
-  const cmpMes=f.periodo==='mes'?f.mes:today().slice(0,7);
+  const cmpMes=f.periodo==='mes'?f.mes:mesAtual();
   const kpi=(ic,c,l,v,s,lead)=>`<div class="kpi${lead?' lead':''}">${icon(ic,c)}<div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
   return `<div class="page-head"><div><p class="eyebrow">Visão geral</p><h2 class="page-title">Painel de decisão</h2></div><span class="small muted">${esc(periodLabel(f))}</span></div>
   ${filterBar('dash')}
+  ${avisoPeriodo('dash',list.length)}
   <div class="kpis">
     ${kpi('money','green','Total gasto',brl(k.totGeral),'combustível '+brl(k.tot)+' + ARLA '+brl(k.arlaTot),true)}
     ${kpi('drop','blue','Total de litros',nf(k.lit,0)+' L','combustível abastecido')}
@@ -1914,9 +2002,9 @@ function pgDash(){
 function analiseMes(m,f){
   const base=l=>l.filter(a=>(!f.veiculoId||a.veiculoId===f.veiculoId)&&(!f.motoristaId||a.motoristaId===f.motoristaId)&&(!f.postoId||a.postoId===f.postoId)&&(!f.combustivel||a.combustivel===f.combustivel));
   const pm=prevMonth(m);
-  const A=kpis(base(ativos().filter(a=>a.data.startsWith(pm)))),B=kpis(base(ativos().filter(a=>a.data.startsWith(m))));
+  const A=kpis(base(ativos().filter(a=>inMes(a.data,pm)))),B=kpis(base(ativos().filter(a=>inMes(a.data,m))));
   const rows=[['Total gasto (com ARLA)',A.totGeral,B.totGeral,brl,true],['Gasto com combustível',A.tot,B.tot,brl,true],['Gasto com ARLA 32',A.arlaTot,B.arlaTot,brl,true],['Litros de combustível',A.lit,B.lit,v=>nf(v,0)+' L',true],['Litros de ARLA 32',A.arlaLit,B.arlaLit,v=>nf(v,0)+' L',true],['Abastecimentos',A.n,B.n,v=>String(v),true],['Preço médio',A.preco,B.preco,brl,true],['Consumo médio',A.consumo,B.consumo,v=>isNum(v)?nf(v)+' km/L':'–',false],['Custo por km',A.custoKm,B.custoKm,v=>isNum(v)?brl(v):'–',true]];
-  return `${secHead('cal','s-green','Análise do mês',mLong(m)+' comparado a '+mLong(pm))}
+  return `${secHead('cal','s-green','Análise do mês',mesLabel(m)+' comparado a '+mesLabel(pm))}
    <div class="tbl-wrap"><table><thead><tr><th>Indicador</th><th class="num">${esc(mShort(pm))}</th><th class="num">${esc(mShort(m))}</th><th class="num">Variação</th></tr></thead><tbody>
    ${rows.map(([l,a,b,fm,upBad])=>{const v=isNum(a)&&a?(b-a)/a*100:null;const cls=!isNum(v)||Math.abs(v)<0.005?'neutral':((v>0)===upBad?'up':'down');return `<tr><td>${l}</td><td class="num">${fm(a)}</td><td class="num">${fm(b)}</td><td class="num ${cls}"><b>${isNum(v)?pctf(v):'–'}</b></td></tr>`}).join('')}
    </tbody></table></div><p class="small muted" style="margin:8px 0 0">Vermelho indica piora de custo ou queda de eficiência; verde, melhora.</p>`;
@@ -1990,7 +2078,7 @@ function abUpdate(){
       const ch=allKmOf(v.id),last=ch[ch.length-1];
       $('#abInfo').innerHTML=`<div><div class="k">Modelo</div><div class="v">${esc(v.marca+' '+v.modelo)}</div></div>
         <div><div class="k">Combustível</div><div class="v">${esc(v.combustivel)}</div></div>
-        <div><div class="k">Capacidade do tanque</div><div class="v">${nf(v.capacidade,0)} L</div></div>
+        <div><div class="k">Capacidade do tanque</div><div class="v">${v.capacidade>0?nf(v.capacidade,0)+' L':'não informada'}</div></div>
         <div><div class="k">Tanque de ARLA</div><div class="v">${v.capacidadeArla>0?nf(v.capacidadeArla,0)+' L':'não informado'}</div></div>
         <div style="grid-column:1/-1"><div class="k">Último KM registrado${last?' ('+dBR(last.data)+' '+last.hora+')':' (cadastro)'}</div><div style="margin-top:4px">${odo(lastKmOf(v))}</div></div>`;
     }else $('#abInfo').innerHTML='<div class="muted small">Selecione a placa para carregar modelo, combustível, último KM e capacidade do tanque.</div>';
@@ -2063,6 +2151,7 @@ function pgLista(){
   list.sort((a,b)=>-byChrono(a,b));
   const act=list.filter(a=>!INATIVOS.includes(a.status)),k=kpis(act);
   return `${filterBar('lista',{extra:`<label class="fl">Status<select data-f="lista.status"><option value="">Todos</option>${opts(Object.entries(STATUS_AB).map(([k,v])=>[k,v[0]]),f.status)}</select></label>`})}
+  ${avisoPeriodo('lista',list.length)}
   <div class="toolbar"><input class="inp search" data-s="hist" placeholder="Buscar placa, nota ou nº do registro" value="${esc(S.search.hist)}">
    <div class="btns">${can('abast.novo')?'<a class="btn primary" href="#/novo">+ Novo abastecimento</a>':''}</div></div>
   <div class="small muted">${list.length} registros, ${brl(k.tot)}, ${nf(k.lit,0)} L (excluídos e reprovados não entram nos totais)</div>
@@ -2201,7 +2290,7 @@ function openAlert(id){
   const acts=[];
   if(a)acts.push({label:al.grupo==='alteracao'?'Ver alteração':'Abrir abastecimento',kind:'ghost',on:()=>{$('#modalRoot').classList.remove('show');modalOpen=false;openAb(a.id)}});
   if(exc&&exc.status==='PENDENTE'&&can('aprovar')){acts.push({label:'Reprovar',kind:'danger',on:()=>decidirExc(exc.id,false)},{label:'Aprovar',kind:'ok',on:()=>decidirExc(exc.id,true)})}
-  if(al.status==='ABERTO'&&can('alertas.resolver'))acts.push({label:'Marcar como resolvido',kind:'primary',on:()=>resolverAlerta(al.id)});
+  if(al.status==='ABERTO'&&can('alertas.resolver'))acts.push(al.tipo==='PRECO_POSTO'?{label:'Registrar negociação',kind:'primary',on:()=>negociarPreco(al.id)}:{label:'Marcar como resolvido',kind:'primary',on:()=>resolverAlerta(al.id)});
   openModal({title:(al.emoji||SEV_E[al.severidade]||'')+' '+al.titulo,tone:al.severidade==='blue'?'navy':al.severidade,
     html:`${kvHtml([...(al.detalhes||[]),['Status do registro',al.statusRegistro||'–'],['Registrado em',dtBR(al.dataHora)],['Usuário responsável',al.responsavel||'–']])}
     <div>${al.status==='ABERTO'?badge('Alerta em aberto','red'):badge('Resolvido por '+(al.resolvidoPor||'–')+' em '+dtBR(al.resolvidoEm),'green')}</div>
@@ -2290,6 +2379,7 @@ function veicForm(id){
     <label class="field">Tipo de veículo<select id="vfTipo">${opts(TIPOS_VEIC,v?.tipo||'Truck')}</select></label>
     <label class="field">Tipo de combustível<select id="vfComb">${opts(COMBUSTIVEIS,v?.combustivel||'Diesel S10')}</select></label>
     <label class="field">Capacidade do tanque (L)<input id="vfCap" inputmode="decimal" value="${esc(v?.capacidade||'')}"></label>
+    <label class="field">Meta de consumo (km/L)<input id="vfMeta" inputmode="decimal" value="${esc(v?.metaConsumo?String(v.metaConsumo).replace('.',','):'')}" placeholder="opcional, ex.: 2,5"></label>
     <label class="field">Tanque de ARLA 32 (L)<input id="vfCapArla" inputmode="decimal" value="${esc(v?.capacidadeArla||'')}" placeholder="0 = não usa ARLA"></label>
     <label class="field">${hasRec?'KM atual (calculado pelos abastecimentos)':'KM atual (inicial)'}<input id="vfKm" inputmode="numeric" value="${esc(v?(hasRec?lastKmOf(v):v.kmInicial):'')}" ${hasRec?'disabled':''}></label>
     <label class="field">Status<select id="vfStatus">${opts([['ATIVO','Ativo'],['INATIVO','Inativo']],v?.status||'ATIVO')}</select></label>
@@ -2309,10 +2399,10 @@ function veicForm(id){
       const cfg={ativo:useCfg,distMin:num(val('vfMin')),distMax:num(val('vfMax')),pctMax:num(val('vfPct'))};
       if(useCfg&&isNum(cfg.distMin)&&isNum(cfg.distMax)&&cfg.distMin>=cfg.distMax){toast('A distância mínima deve ser menor que a máxima.','err');return}
       const before=v?clone(v):null;
-      const nv={...(v||{id:uid(),codigo:'V'+String(T.veiculos.length+1).padStart(3,'0'),criadoEm:new Date().toISOString()}),placa,marca:val('vfMarca'),modelo:val('vfModelo'),ano:val('vfAno'),tipo:val('vfTipo'),combustivel:val('vfComb'),capacidade:cap,capacidadeArla:parseDec(val('vfCapArla'))||0,status:val('vfStatus'),obs:val('vfObs'),cfg};
+      const nv={...(v||{id:uid(),codigo:'V'+String(T.veiculos.length+1).padStart(3,'0'),criadoEm:new Date().toISOString()}),placa,marca:val('vfMarca'),modelo:val('vfModelo'),ano:val('vfAno'),tipo:val('vfTipo'),combustivel:val('vfComb'),capacidade:cap,capacidadeArla:parseDec(val('vfCapArla'))||0,metaConsumo:parseDec(val('vfMeta'))>0?parseDec(val('vfMeta')):null,status:val('vfStatus'),obs:val('vfObs'),cfg};
       if(!hasRec){const k=parseKm(val('vfKm'));nv.kmInicial=isNaN(k)?0:k;nv.kmAtual=nv.kmInicial}
       put('veiculos',nv);
-      auditCad('Veículo',placa,before,nv,[['placa','Placa'],['marca','Marca'],['modelo','Modelo'],['ano','Ano'],['tipo','Tipo'],['combustivel','Combustível'],['capacidade','Capacidade'],['capacidadeArla','Tanque de ARLA'],['kmInicial','KM inicial'],['status','Status'],['obs','Observações'],['cfg','Parâmetros específicos']]);
+      auditCad('Veículo',placa,before,nv,[['placa','Placa'],['marca','Marca'],['modelo','Modelo'],['ano','Ano'],['tipo','Tipo'],['combustivel','Combustível'],['capacidade','Capacidade'],['capacidadeArla','Tanque de ARLA'],['metaConsumo','Meta de consumo (km/L)'],['kmInicial','KM inicial'],['status','Status'],['obs','Observações'],['cfg','Parâmetros específicos']]);
       closeModal();toast('Veículo salvo.','ok');
     }}]});
 }
@@ -2355,8 +2445,8 @@ function motForm(id){
    actions:[{label:'Cancelar',kind:'ghost',on:closeModal},{label:'Salvar motorista',kind:'primary',on:()=>{
      const cpf=cpfDigits(val('mfCpf'));
      if(!val('mfNome')){toast('Informe o nome.','err');return}
-     if(!cpfValido(cpf)){toast('CPF inválido.','err');return}
-     if(T.motoristas.some(x=>x.cpf===cpf&&x.id!==id)){toast('CPF já cadastrado.','err');return}
+     if(cpf&&!cpfValido(cpf)){toast('CPF inválido.','err');return}
+     if(cpf&&T.motoristas.some(x=>x.cpf===cpf&&x.id!==id)){toast('CPF já cadastrado.','err');return}
      if(!val('mfMat')){toast('Informe a matrícula.','err');return}
      if(T.motoristas.some(x=>x.matricula===val('mfMat')&&x.id!==id)){toast('Matrícula já cadastrada.','err');return}
      const before=m?clone(m):null;
@@ -2378,9 +2468,9 @@ function pgPostos(){
     const rows=T.postos.map(p=>({p,g:ag.find(x=>x.k===p.id)||{n:0,lit:0,tot:0,preco:null,nVeic:0}})).sort((a,b)=>b.g.tot-a.g.tot);
     if(!S.cmp)S.cmp=rows.slice(0,3).map(r=>r.p.id);
     const sel=S.cmp;
-    const months=[...new Set(ativos().map(a=>a.data.slice(0,7)))].sort().slice(-6);
-    const evo=sel.map((pid,i)=>({name:pNome(pid),color:PALETTE[i%PALETTE.length],values:months.map(m=>{const l=ativos().filter(a=>a.postoId===pid&&a.data.startsWith(m));return l.length?sum(l,a=>a.valorTotal):0})}));
-    const evoP=sel.map((pid,i)=>({name:pNome(pid),color:PALETTE[i%PALETTE.length],values:months.map(m=>{const l=ativos().filter(a=>a.postoId===pid&&a.data.startsWith(m));const L=sum(l,a=>a.litros);return L?sum(l,a=>a.valorTotal)/L:null})}));
+    const months=[...new Set(ativos().map(a=>competencia(a.data)))].sort().slice(-6);
+    const evo=sel.map((pid,i)=>({name:pNome(pid),color:PALETTE[i%PALETTE.length],values:months.map(m=>{const l=ativos().filter(a=>a.postoId===pid&&competencia(a.data)===m);return l.length?sum(l,a=>a.valorTotal):0})}));
+    const evoP=sel.map((pid,i)=>({name:pNome(pid),color:PALETTE[i%PALETTE.length],values:months.map(m=>{const l=ativos().filter(a=>a.postoId===pid&&competencia(a.data)===m);const L=sum(l,a=>a.litros);return L?sum(l,a=>a.valorTotal)/L:null})}));
     return h+filterBar('perf',{skip:['postoId']})+`<div class="tbl-wrap"><table><thead><tr><th>Comparar</th><th>Posto</th><th>Cidade</th><th class="num">Total gasto</th><th class="num">Litros</th><th class="num">Preço médio</th><th class="num">Abast.</th><th class="num">Veículos</th></tr></thead><tbody>
     ${rows.map(({p,g})=>`<tr><td><input type="checkbox" data-act="cmpPosto" data-id="${p.id}" ${sel.includes(p.id)?'checked':''} aria-label="Comparar ${esc(p.nome)}"></td><td><b>${esc(p.nome)}</b></td><td>${esc(p.cidade+'/'+p.uf)}</td><td class="num">${brl(g.tot)}</td><td class="num">${nf(g.lit,0)}</td><td class="num">${brl(g.preco)}</td><td class="num">${g.n}</td><td class="num">${g.nVeic}</td></tr>`).join('')}</tbody></table></div>
     <div class="grid-2"><div class="card"><div class="card-h"><h3>Evolução mensal do gasto</h3></div>${sel.length?lineChart(months.map(mShort),evo,{fmt:v=>'R$ '+nf(v,0)}):'<div class="empty">Marque postos para comparar.</div>'}</div>
@@ -2408,7 +2498,7 @@ function postoForm(id){
    actions:[{label:'Cancelar',kind:'ghost',on:closeModal},{label:'Salvar posto',kind:'primary',on:()=>{
      const cnpj=cnpjDigits(val('pfCnpj'));
      if(!val('pfNome')||!val('pfCid')){toast('Informe nome e cidade.','err');return}
-     if(cnpj.length!==14){toast('CNPJ deve ter 14 dígitos.','err');return}
+     if(cnpj.length!==14&&cnpj.length!==11){toast('Informe um CNPJ (14 dígitos) ou CPF (11 dígitos).','err');return}
      if(T.postos.some(x=>x.cnpj===cnpj&&x.id!==id)){toast('CNPJ já cadastrado.','err');return}
      const before=p?clone(p):null;
      const np={...(p||{id:uid(),criadoEm:new Date().toISOString()}),nome:val('pfNome'),cnpj,telefone:val('pfTel'),endereco:val('pfEnd'),cidade:val('pfCid'),uf:val('pfUf'),responsavel:val('pfResp'),status:val('pfSt'),obs:val('pfObs')};
@@ -2440,13 +2530,13 @@ function pgKm(){
 /* ================= ALTERAÇÕES ================= */
 function pgAlteracoes(){
   const m=S.alt.mes;
-  const hs=T.historico.filter(h=>localDate(h.dataHora).startsWith(m));
+  const hs=T.historico.filter(h=>inMes(localDate(h.dataHora),m));
   const alt=hs.filter(h=>h.acao==='Alteração');
   const byCampo=c=>new Set(alt.filter(h=>c.includes(h.campo)).map(h=>h.opId)).size;
-  const cards=[['Abastecimentos alterados',new Set(alt.map(h=>h.abastId)).size],['Alterações de valor',byCampo(['Valor total','Valor por litro'])],['Alterações de litros',byCampo(['Litros'])],['Alterações de KM',byCampo(['KM'])],['Alterações de posto',byCampo(['Posto'])],['Alterações de combustível',byCampo(['Combustível'])],['Exclusões',hs.filter(h=>h.acao==='Exclusão').length],['Exceções',T.excecoes.filter(e=>localDate(e.dataHora).startsWith(m)).length]];
+  const cards=[['Abastecimentos alterados',new Set(alt.map(h=>h.abastId)).size],['Alterações de valor',byCampo(['Valor total','Valor por litro'])],['Alterações de litros',byCampo(['Litros'])],['Alterações de KM',byCampo(['KM'])],['Alterações de posto',byCampo(['Posto'])],['Alterações de combustível',byCampo(['Combustível'])],['Exclusões',hs.filter(h=>h.acao==='Exclusão').length],['Exceções',T.excecoes.filter(e=>inMes(localDate(e.dataHora),m)).length]];
   const list=hs.filter(h=>['Alteração','Exclusão','Recálculo'].includes(h.acao)).sort((a,b)=>a.dataHora<b.dataHora?1:-1);
-  return `<div class="filters"><label class="fl">Mês<input type="month" data-f="alt.mes" value="${esc(m)}"></label><div class="small muted" style="flex:3">Todas as alterações preservam o valor original. Recálculos automáticos de KM anterior aparecem separados.</div></div>
-  <div class="kpis">${cards.map(([l,n],i)=>`<div class="kpi${i===0?' lead':''}"><div class="l">${l}</div><div class="v">${n}</div><div class="s">${esc(mLong(m))}</div></div>`).join('')}</div>
+  return `<div class="filters"><label class="fl">${diaFech()>1?'Mês de fechamento <span style="font-weight:500">('+faixaMes(m)+')</span>':'Mês'}<input type="month" data-f="alt.mes" value="${esc(m)}"></label><div class="small muted" style="flex:3">Todas as alterações preservam o valor original. Recálculos automáticos de KM anterior aparecem separados.</div></div>
+  <div class="kpis">${cards.map(([l,n],i)=>`<div class="kpi${i===0?' lead':''}"><div class="l">${l}</div><div class="v">${n}</div><div class="s">${esc(mesLabel(m))}</div></div>`).join('')}</div>
   <div class="tbl-wrap"><table><thead><tr><th>Data / hora</th><th>Usuário</th><th>Ação</th><th>Registro</th><th>Campo</th><th>Valor anterior</th><th>Novo valor</th><th>Motivo</th></tr></thead><tbody>
   ${list.map(h=>`<tr class="click" data-act="openAb" data-id="${h.abastId}"><td class="nowrap">${dtBR(h.dataHora)}</td><td>${esc(h.usuarioNome)}</td><td>${badge(h.acao,h.acao==='Exclusão'?'red':h.acao==='Recálculo'?'gray':'blue')}</td><td>#${h.seq} ${esc(h.placa)}</td><td>${esc(h.campo)}</td><td class="muted">${esc(h.anterior)}</td><td><b>${esc(h.novo)}</b></td><td>${esc(h.motivo)}</td></tr>`).join('')||'<tr><td colspan="8" class="empty">Nenhuma alteração neste mês.</td></tr>'}
   </tbody></table></div>`;
@@ -2494,7 +2584,7 @@ const REL={
   combustivel:{n:'Relatório por combustível',b:f=>{const rows=aggBy(relBase(f),a=>a.combustivel).sort((a,b)=>b.tot-a.tot);return {rows,cols:[C('Combustível',g=>g.k),C('Abast.',g=>g.n,'n0'),C('Litros',g=>g.lit,'n2'),C('Total gasto',g=>g.tot,'brl'),C('Preço médio',g=>g.preco,'n3'),C('Veículos',g=>g.nVeic,'n0')]}}},
   consumo:{n:'Relatório de consumo',b:f=>{const rows=aggBy(relBase(f),a=>a.veiculoId).sort((a,b)=>(b.consumo||0)-(a.consumo||0));return {rows,cols:[C('Placa',g=>vNome(g.k)),C('Modelo',g=>V(g.k)?.modelo),C('KM percorrido',g=>g.km,'km'),C('Litros (com KM)',g=>g.litK,'n2'),C('Consumo médio km/L',g=>g.consumo,'n2'),C('Melhor km/L',g=>g.melhor,'n2'),C('Pior km/L',g=>g.pior,'n2')]}}},
   custokm:{n:'Relatório de custo por km',b:f=>{const rows=aggBy(relBase(f),a=>a.veiculoId).sort((a,b)=>(b.custoKm||0)-(a.custoKm||0));return {rows,cols:[C('Placa',g=>vNome(g.k)),C('Modelo',g=>V(g.k)?.modelo),C('KM percorrido',g=>g.km,'km'),C('Valor (com KM)',g=>g.valK,'brl'),C('Custo/km',g=>g.custoKm,'n3'),C('Preço médio',g=>g.preco,'n3')]}}},
-  mensal:{n:'Relatório mensal',b:f=>{const l=filtrar(ativos(),{...f,periodo:'tudo'});const rows=aggBy(l,a=>a.data.slice(0,7)).sort((a,b)=>a.k<b.k?-1:1);rows.forEach((g,i)=>g.var=i?(g.tot-rows[i-1].tot)/rows[i-1].tot*100:null);return {rows,cols:[C('Mês',g=>mLong(g.k)),C('Abast.',g=>g.n,'n0'),C('Litros',g=>g.lit,'n2'),C('Total gasto',g=>g.tot,'brl'),C('ARLA litros',g=>g.arlaLit,'n2'),C('ARLA total',g=>g.arlaTot,'brl'),C('Preço médio',g=>g.preco,'n3'),C('Consumo km/L',g=>g.consumo,'n2'),C('Custo/km',g=>g.custoKm,'n3'),C('Variação do gasto',g=>g.var,'pct')]}}},
+  mensal:{n:'Relatório mensal',b:f=>{const l=filtrar(ativos(),{...f,periodo:'tudo'});const rows=aggBy(l,a=>competencia(a.data)).sort((a,b)=>a.k<b.k?-1:1);rows.forEach((g,i)=>g.var=i?(g.tot-rows[i-1].tot)/rows[i-1].tot*100:null);return {rows,cols:[C('Mês',g=>mesLabel(g.k)),C('Abast.',g=>g.n,'n0'),C('Litros',g=>g.lit,'n2'),C('Total gasto',g=>g.tot,'brl'),C('ARLA litros',g=>g.arlaLit,'n2'),C('ARLA total',g=>g.arlaTot,'brl'),C('Preço médio',g=>g.preco,'n3'),C('Consumo km/L',g=>g.consumo,'n2'),C('Custo/km',g=>g.custoKm,'n3'),C('Variação do gasto',g=>g.var,'pct')]}}},
   alteracoes:{n:'Relatório de alterações',b:f=>{const pl=f.veiculoId?vNome(f.veiculoId):'';const rows=T.historico.filter(h=>['Alteração','Exclusão','Recálculo'].includes(h.acao)&&inRangeIso(h.dataHora,f)&&(!pl||h.placa===pl)).sort((a,b)=>a.dataHora<b.dataHora?-1:1);return {rows,cols:[C('Data/hora',h=>dtBR(h.dataHora)),C('Usuário',h=>h.usuarioNome),C('Ação',h=>h.acao),C('Registro',h=>'#'+h.seq),C('Placa',h=>h.placa),C('Campo',h=>h.campo),C('Valor anterior',h=>h.anterior),C('Novo valor',h=>h.novo),C('Motivo',h=>h.motivo)]}}},
   inconsistencias:{n:'Relatório de inconsistências',b:f=>{const rows=T.alertas.filter(a=>a.grupo!=='alteracao'&&inRangeIso(a.dataHora,f)&&(!f.veiculoId||a.veiculoId===f.veiculoId)).sort((a,b)=>a.dataHora<b.dataHora?-1:1);return {rows,cols:[C('Data/hora',a=>dtBR(a.dataHora)),C('Tipo',a=>a.titulo),C('Grupo',a=>GRUPOS[a.grupo]?.[0]),C('Placa',a=>a.placa),C('Registro',a=>a.abastId&&Ab(a.abastId)?'#'+Ab(a.abastId).seq:'tentativa'),C('Situação',a=>a.status),C('Status do registro',a=>a.statusRegistro),C('Responsável',a=>a.responsavel),C('Detalhes',a=>(a.detalhes||[]).map(x=>x[0]+': '+x[1]).join('; '))]}}},
   excecoes:{n:'Relatório de exceções',b:f=>{const rows=T.excecoes.filter(e=>inRangeIso(e.dataHora,f)&&(!f.veiculoId||e.veiculoId===f.veiculoId)).sort((a,b)=>a.dataHora<b.dataHora?-1:1);return {rows,cols:[C('Data/hora',e=>dtBR(e.dataHora)),C('Registro',e=>'#'+e.seq),C('Placa',e=>e.placa),C('Ocorrências',e=>(e.tipos||[]).map(t=>FLAG_L[t]).join(', ')),C('Motivo',e=>e.motivo),C('Justificativa',e=>e.justificativa),C('Lançado por',e=>e.usuarioNome),C('KM anterior',e=>e.kmAnterior,'km'),C('KM informado',e=>e.kmInformado,'km'),C('Diferença',e=>e.diferenca,'km'),C('Status',e=>e.status),C('Aprovador',e=>e.aprovadorNome),C('Data aprovação',e=>e.dataAprovacao?dtBR(e.dataAprovacao):''),C('Obs. decisão',e=>e.obsAprovacao)]}}},
@@ -2506,7 +2596,7 @@ function pgRelatorios(){
   ${f.tipo==='mensal'?filterBar('rel',{skip:[]}).replace(/<label class="fl">Período[\s\S]*?<\/label>/,''):filterBar('rel')}
   <div class="toolbar"><h2>${esc(R.n)}</h2><div class="btns"><button class="btn sm" data-act="expRel" data-id="xlsx">⬇ Excel</button><button class="btn sm" data-act="expRel" data-id="pdf">⬇ PDF</button><button class="btn sm" data-act="expRel" data-id="csv">⬇ CSV</button></div></div>
   <div class="small muted">${rows.length} linhas${f.tipo==='mensal'?'':', período: '+esc(periodLabel(f))}</div>
-  ${f.tipo==='mensal'?`<div class="card">${lineChart(rows.map(g=>mShort(g.k)),[{name:'Total gasto',values:rows.map(g=>g.tot),color:'#1D5AB5'}],{fmt:v=>'R$ '+nf(v,0)})}</div><div class="card">${analiseMes(S.rel.mes||today().slice(0,7),f)}</div>`:''}
+  ${f.tipo==='mensal'?`<div class="card">${lineChart(rows.map(g=>mShort(g.k)),[{name:'Total gasto',values:rows.map(g=>g.tot),color:'#1D5AB5'}],{fmt:v=>'R$ '+nf(v,0)})}</div><div class="card">${analiseMes(S.rel.mes||mesAtual(),f)}</div>`:''}
   <div class="tbl-wrap"><table><thead><tr>${cols.map(c=>`<th class="${c.t!=='txt'?'num':''}">${esc(c.h)}</th>`).join('')}</tr></thead><tbody>
   ${rows.slice(0,500).map(r=>`<tr>${cols.map(c=>`<td class="${c.t!=='txt'?'num':''}">${esc(fmtCell(c.t,c.v(r)))}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length}" class="empty">Sem dados para os filtros escolhidos.</td></tr>`}
   </tbody>${tot?`<tfoot><tr>${cols.map((c,i)=>`<td class="${c.t!=='txt'?'num':''}">${i===0?'Totais':tot[c.h]!=null?esc(fmtCell(c.t,tot[c.h])):''}</td>`).join('')}</tr></tfoot>`:''}</table></div>
@@ -2560,11 +2650,16 @@ function pgConfig(){
    <label class="field">Percentual máximo de variação sobre a média histórica (%)<input id="cfPct" inputmode="numeric" value="${c.pctMax}"></label>
    <label class="field">Tolerância de preço por litro (%)<input id="cfPreco" inputmode="numeric" value="${c.precoPct}"></label>
    <label class="field">Tolerância para "preço diferente do último" (R$ por litro)<input id="cfPrecoUlt" inputmode="decimal" value="${String(c.precoUltimoTol??0).replace('.',',')}"><span class="hint">0,00 = avisa qualquer diferença.</span></label>
+   <label class="field">Mês de fechamento começa no dia<select id="cfMesIni">${opts(Array.from({length:28},(_,i)=>[String(i+1),i===0?'1 (mês normal)':String(i+1)]),String(c.mesInicio||1))}</select><span class="hint">Ex.: 21 = do dia 21 ao dia 20 do mês seguinte.</span></label>
+   <label class="field">Nome do mês de fechamento<select id="cfMesRef">${opts([['fim','Mês em que o período termina (21/08 a 20/09 = setembro)'],['inicio','Mês em que o período começa (21/09 a 20/10 = setembro)']],c.mesRef||'fim')}</select></label>
    <label class="field">Janela para duplicidade (minutos)<input id="cfDup" inputmode="numeric" value="${c.dupJanela}"></label>
    <label class="field">ARLA máximo em relação ao combustível (%)<input id="cfArlaPct" inputmode="numeric" value="${c.arlaPctMax??10}"><span class="hint">Acima disso o sistema pede confirmação. Normal: 3% a 6%.</span></label>
    <label class="field">Acima da capacidade do tanque<select id="cfCap">${opts([['justificar','Solicitar justificativa'],['bloquear','Bloquear']],c.capacidadeAcao)}</select></label>
   </div>
   <div style="display:grid;gap:10px;margin-top:14px">
+   <label class="check"><input type="checkbox" id="cfPrecoPosto" ${c.precoPostoAtivo!==false?'checked':''}> Avisar quando o preço do combustível ou do ARLA mudar no mesmo posto (para negociar)</label>
+   <label class="check" style="margin-left:28px"><input type="checkbox" id="cfPrecoPostoRed" ${c.precoPostoReducao?'checked':''}> Avisar também quando o preço baixar</label>
+   <label class="field" style="margin-left:28px;max-width:360px">Variação mínima para avisar (R$ por litro)<input id="cfPrecoPostoTol" inputmode="decimal" value="${String(c.precoPostoTol??0.01).replace('.',',')}"></label>
    <label class="check"><input type="checkbox" id="cfPrecoUltAtivo" ${c.precoUltimoAtivo?'checked':''}> Avisar quando o valor do combustível for diferente do último abastecimento</label>
    <label class="check"><input type="checkbox" id="cfJust" ${c.exigirJustificativa?'checked':''}> Exigir justificativa para lançamentos fora dos parâmetros</label>
    <label class="check"><input type="checkbox" id="cfAprov" ${c.exigirAprovacao?'checked':''}> Exigir aprovação do gestor para exceções</label>
@@ -2586,12 +2681,13 @@ function pgConfig(){
 }
 function saveCfg(){
   const n=id=>parseKm(val(id));
-  const nc={...cfgG(),arlaPctMax:n('cfArlaPct'),distMin:n('cfMin'),distMax:n('cfMax'),pctMax:n('cfPct'),precoPct:n('cfPreco'),precoUltimoAtivo:$('#cfPrecoUltAtivo').checked,precoUltimoTol:isNum(parseDec(val('cfPrecoUlt')))?parseDec(val('cfPrecoUlt')):0,dupJanela:n('cfDup'),capacidadeAcao:val('cfCap'),exigirJustificativa:$('#cfJust').checked,exigirAprovacao:$('#cfAprov').checked,permitirExcecoes:$('#cfExc').checked};
+  const nc={...cfgG(),precoPostoAtivo:$('#cfPrecoPosto').checked,precoPostoReducao:$('#cfPrecoPostoRed').checked,precoPostoTol:isNum(parseDec(val('cfPrecoPostoTol')))?parseDec(val('cfPrecoPostoTol')):0.01,mesInicio:+val('cfMesIni')||1,mesRef:val('cfMesRef')||'fim',arlaPctMax:n('cfArlaPct'),distMin:n('cfMin'),distMax:n('cfMax'),pctMax:n('cfPct'),precoPct:n('cfPreco'),precoUltimoAtivo:$('#cfPrecoUltAtivo').checked,precoUltimoTol:isNum(parseDec(val('cfPrecoUlt')))?parseDec(val('cfPrecoUlt')):0,dupJanela:n('cfDup'),capacidadeAcao:val('cfCap'),exigirJustificativa:$('#cfJust').checked,exigirAprovacao:$('#cfAprov').checked,permitirExcecoes:$('#cfExc').checked};
   if(['distMin','distMax','pctMax','precoPct','dupJanela','arlaPctMax'].some(k=>!isNum(nc[k]))){toast('Preencha todos os valores numéricos.','err');return}
   if(nc.distMin>=nc.distMax){toast('A distância mínima deve ser menor que a máxima.','err');return}
-  const before=cfgG();
+  const before=cfgG(),mAntes=mesAtual();
   put('config',nc);
-  const L={arlaPctMax:'ARLA máximo (%)',distMin:'Distância mínima',distMax:'Distância máxima',pctMax:'Variação máxima (%)',precoPct:'Tolerância de preço (%)',precoUltimoAtivo:'Avisar preço diferente do último',precoUltimoTol:'Tolerância preço do último (R$)',dupJanela:'Janela de duplicidade',capacidadeAcao:'Ação acima da capacidade',exigirJustificativa:'Exigir justificativa',exigirAprovacao:'Exigir aprovação',permitirExcecoes:'Permitir exceções'};
+  ajustarMesFiltros(mAntes);
+  const L={precoPostoAtivo:'Avisar alteração de preço no posto',precoPostoReducao:'Avisar redução de preço',precoPostoTol:'Variação mínima de preço no posto (R$)',mesInicio:'Início do mês de fechamento (dia)',mesRef:'Nome do mês de fechamento',arlaPctMax:'ARLA máximo (%)',distMin:'Distância mínima',distMax:'Distância máxima',pctMax:'Variação máxima (%)',precoPct:'Tolerância de preço (%)',precoUltimoAtivo:'Avisar preço diferente do último',precoUltimoTol:'Tolerância preço do último (R$)',dupJanela:'Janela de duplicidade',capacidadeAcao:'Ação acima da capacidade',exigirJustificativa:'Exigir justificativa',exigirAprovacao:'Exigir aprovação',permitirExcecoes:'Permitir exceções'};
   Object.keys(L).forEach(k=>{if(before[k]!==nc[k])addAudit({acao:'Alteração de configuração',entidade:'Configuração',registro:'Validação de quilometragem',campo:L[k],anterior:before[k],novo:nc[k],status:'OK'})});
   toast('Configurações salvas.','ok');
 }
@@ -2645,6 +2741,464 @@ function resetPwd(rid){
    }}]});
 }
 
+/* aviso de período sem dados */
+function avisoPeriodo(k,qtd){
+  if(qtd>0)return '';
+  const todos=ativos();if(!todos.length)return '';
+  const datas=todos.map(a=>a.data).sort(),de=datas[0],ate=datas[datas.length-1];
+  return `<div class="issue yellow"><h4>⚠️ Nenhum abastecimento em ${esc(periodLabel(S[k]).replace(/^./,c=>c.toLowerCase()))}</h4>
+    <div class="small">O sistema tem ${todos.length} abastecimentos lançados de <b>${dBR(de)}</b> a <b>${dBR(ate)}</b>. Mude o período no filtro acima ou clique abaixo.</div>
+    <div class="btns"><button class="btn sm primary" data-act="verPeriodo" data-id="${k}|${de}|${ate}">Ver ${dBR(de)} a ${dBR(ate)}</button><button class="btn sm" data-act="verPeriodo" data-id="${k}|tudo">Ver todo o período</button></div></div>`;
+}
+function aplicarPeriodo(de,ate,keys=['dash','lista','cons','perf','rel','prc']){
+  keys.forEach(k=>{if(!S[k])S[k]=newFilter(k==='cons'?{tipoVeic:'',ordem:'media'}:k==='rel'?{tipo:'abast'}:k==='prc'?{mostrar:'aumentos'}:{});if(de==='tudo'){S[k].periodo='tudo'}else{S[k].periodo='custom';S[k].de=de;S[k].ate=ate}});
+}
+
+/* ================= IMPORTAÇÃO DE PLANILHA ================= */
+let IMP=null;
+const normH=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+const IMP_COLS={
+  doc:['ndocumento','nodocumento','numerodocumento','documento','notafiscal','nota','cupom'],
+  data:['data','datadoabastecimento','dataabastecimento'],
+  tipo:['tipodedespesadescricao','tipodedespesa','despesa','produto','combustivel','tipocombustivel'],
+  total:['valortotal','total','valor'],
+  vcod:['veiculocod','codveiculo'],
+  vdesc:['veiculodescricao','descricaoveiculo','modelo'],
+  placa:['veiculoplaca','placa'],
+  km:['veiculohodometro','hodometro','km','kmatual','odometro'],
+  mcod:['motoristacod','codmotorista','matricula'],
+  mnome:['motoristanome','motorista','nomemotorista'],
+  fnome:['fornecedornome','fornecedor','posto','nomeposto'],
+  cnpj:['fornecedorcnpjcpf','cnpj','cnpjcpf','fornecedorcnpj'],
+  qtd:['quantidade','litros','qtd'],
+  vu:['valorunitario','valorlitro','precolitro','valorporlitro','precounitario'],
+  obs:['observacao','obs','observacoes'],
+  completo:['abastecimentocompleto','tanquecheio','completo'],
+  hora:['hora','horario']
+};
+function impTipo(s){
+  const t=normH(s);
+  if(!t)return null;
+  if(t.includes('arla'))return {arla:true};
+  if(t.includes('s500'))return {comb:'Diesel S500'};
+  if(t.includes('diesel'))return {comb:'Diesel S10'};
+  if(t.includes('gasolina'))return {comb:'Gasolina'};
+  if(t.includes('etanol')||t.includes('alcool'))return {comb:'Etanol'};
+  return null;
+}
+function impData(v){
+  if(v instanceof Date&&!isNaN(v))return ymd(v);
+  if(typeof v==='number'&&v>20000&&v<80000){const d=new Date(Date.UTC(1899,11,30)+Math.round(v*86400000));return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate())}
+  const s=String(v??'').trim();let m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/);
+  if(m){const y=m[3].length===2?'20'+m[3]:m[3];return y+'-'+pad(+m[2])+'-'+pad(+m[1])}
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return m[1]+'-'+m[2]+'-'+m[3];
+  return '';
+}
+let IMP_BR=true; // números em texto no padrão brasileiro (1.234,56)
+const impNum=v=>{
+  if(typeof v==='number')return v;
+  let s=String(v??'').trim().replace(/[^\d.,-]/g,'');if(!s)return NaN;
+  s=IMP_BR?s.replace(/\.(?=\d{3}(\D|$))/g,'').replace(/\./g,s.includes(',')?'':'.').replace(',','.'):s.replace(/,/g,'');
+  const n=parseFloat(s);return isNaN(n)?NaN:n;
+};
+function impTexto(u8){
+  let t;try{t=new TextDecoder('utf-8',{fatal:true}).decode(u8)}catch(e){t=new TextDecoder('windows-1252').decode(u8)}
+  return t.replace(/^\uFEFF/,'');
+}
+function impWorkbook(u8,nome){
+  const ext=(String(nome).split('.').pop()||'').toLowerCase();
+  const zip=u8[0]===0x50&&u8[1]===0x4B,cfb=u8[0]===0xD0&&u8[1]===0xCF;
+  if(zip||cfb){IMP_BR=true;return XLSX.read(u8,{type:'array',cellDates:false})}
+  const txt=impTexto(u8);
+  const amostra=txt.slice(0,200000);
+  const br=(amostra.match(/\d,\d{1,4}(?!\d)/g)||[]).length,us=(amostra.match(/\d\.\d{1,2}(?!\d)/g)||[]).length;
+  if(/<table|<html|<tr/i.test(txt.slice(0,20000))){IMP_BR=br>=us;return XLSX.read(txt,{type:'string',raw:true})}
+  const linha=(txt.split(/\r?\n/).find(l=>l.trim())||'').replace(/"[^"]*"/g,'');
+  const cnt=c=>linha.split(c).length-1;
+  const FS=cnt(';')>=cnt(',')&&cnt(';')>=cnt('\t')?';':cnt('\t')>cnt(',')?'\t':',';
+  IMP_BR=FS===';'?true:FS===','?false:br>=us;
+  if(!['csv','txt','tsv','xls','xlsx'].includes(ext)&&!cnt(FS))throw new Error('Formato de arquivo não reconhecido. Use .xls, .xlsx ou .csv.');
+  return XLSX.read(txt,{type:'string',FS,raw:true});
+}
+function impAcharCab(hs){
+  const m={};
+  for(const [k,al] of Object.entries(IMP_COLS)){
+    let idx=hs.findIndex(h=>al.includes(h));
+    if(idx<0)idx=hs.findIndex(h=>h&&al.some(a=>a.length>=5&&h.includes(a)));
+    if(idx>=0&&!Object.values(m).includes(idx))m[k]=idx;
+  }
+  return m;
+}
+function impDoc(v){if(typeof v==='number'){const s=String(Math.round(v));return s.length>11?s.padStart(14,'0'):s.length>=9?s.padStart(11,'0'):s}const s=String(v??'').replace(/\D/g,'');return s.length>11?s.padStart(14,'0'):s}
+function impModelo(desc,placa){
+  let d=String(desc||'').trim().replace(/\s+/g,' ');
+  if(!d||d.toUpperCase().replace(/[^A-Z0-9]/g,'')===placa)return {marca:'',modelo:''};
+  d=d.replace(new RegExp('^'+placa+'\\s*-\\s*','i'),'');
+  const u=d.toUpperCase(),marcas=[['M. BENZ','Mercedes-Benz'],['MERCEDES','Mercedes-Benz'],['MB ','Mercedes-Benz'],['VW','Volkswagen'],['VOLKS','Volkswagen'],['DAF','DAF'],['VOLVO','Volvo'],['SCANIA','Scania'],['FORD','Ford'],['IVECO','Iveco'],['FIAT','Fiat'],['RENAULT','Renault'],['CHEVROLET','Chevrolet'],['GM','Chevrolet'],['TOYOTA','Toyota']];
+  const mk=marcas.find(([k])=>u.startsWith(k));
+  return {marca:mk?mk[1]:'',modelo:mk?d.slice(mk[0].length).replace(/^[\s\/.-]+/,'').trim()||d:d};
+}
+function impCidade(nome){const m=String(nome||'').match(/\(([^)]*)\)/);return m?m[1].replace(/^(DP\.?\s*|DOM PEDRO\s*)/i,'').replace(/\s*-\s*MG$|\/MG$/i,'').trim():''}
+function lerPlanilha(buf,nomeArq){
+  if(!buf||!buf.length)throw new Error('O arquivo está vazio.');
+  const wb=impWorkbook(buf,nomeArq);
+  let rows=null,hi=-1,map=null,melhor=null;
+  for(const sn of wb.SheetNames){
+    const rs=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,raw:true,defval:''});
+    for(let i=0;i<Math.min(rs.length,40);i++){
+      const m=impAcharCab(rs[i].map(normH));
+      const nOk=['placa','data','km'].filter(k=>m[k]!=null).length+(m.qtd!=null||m.total!=null?1:0);
+      if(!melhor||nOk>melhor.n)melhor={n:nOk,m,row:rs[i],aba:sn};
+      if(nOk===4){rows=rs;hi=i;map=m;break}
+    }
+    if(rows)break;
+  }
+  if(!rows){
+    const falta=melhor?[['placa','Placa'],['data','Data'],['km','Hodômetro/KM']].filter(([k])=>melhor.m[k]==null).map(x=>x[1]).concat(melhor.m.qtd==null&&melhor.m.total==null?['Quantidade/Litros']:[]):['Placa','Data','Hodômetro/KM','Quantidade/Litros'];
+    const vistos=melhor?melhor.row.filter(x=>String(x).trim()).slice(0,12).map(x=>String(x).trim()).join(' | '):'';
+    throw new Error('Não encontrei as colunas: '+falta.join(', ')+'.'+(vistos?' Linha mais parecida com cabeçalho (aba "'+melhor.aba+'"): '+vistos:''));
+  }
+  const g=(r,k)=>map[k]!=null?r[map[k]]:'';
+  const itens=[],ignorados=[];
+  rows.slice(hi+1).forEach((r,ix)=>{
+    const linha=hi+2+ix;
+    const placa=String(g(r,'placa')||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if(!placa&&!g(r,'tipo')&&!g(r,'qtd'))return; // linha vazia/total
+    const tp=impTipo(g(r,'tipo')),data=impData(g(r,'data')),km=Math.round(impNum(g(r,'km'))),qtd=impNum(g(r,'qtd'));
+    let total=impNum(g(r,'total')),vu=impNum(g(r,'vu'));
+    const motivo=!placa?'sem placa':!data?'data inválida':!tp?'tipo de despesa não é combustível/ARLA ('+String(g(r,'tipo')||'vazio')+')':!(km>0)?'hodômetro vazio':!(qtd>0)?'quantidade vazia':'';
+    if(motivo){ignorados.push({linha,doc:String(g(r,'doc')||''),placa,tipo:String(g(r,'tipo')||''),motivo});return}
+    if(!(total>0)&&vu>0)total=r2(qtd*vu);
+    if(!(total>0)){ignorados.push({linha,doc:String(g(r,'doc')||''),placa,tipo:String(g(r,'tipo')||''),motivo:'sem valor'});return}
+    const hr=String(g(r,'hora')||'').match(/^(\d{1,2}):(\d{2})/);
+    itens.push({linha,doc:String(g(r,'doc')||'').trim(),data,hora:hr?pad(+hr[1])+':'+hr[2]:'',placa,km,qtd:+qtd,total:r2(total),vu:+(total/qtd).toFixed(4),
+      arla:!!tp.arla,comb:tp.comb||'',vcod:String(g(r,'vcod')||'').replace(/\.0$/,''),vdesc:String(g(r,'vdesc')||''),
+      mcod:String(g(r,'mcod')||'').replace(/\.0$/,''),mnome:String(g(r,'mnome')||'').trim().replace(/\s+/g,' '),
+      fnome:String(g(r,'fnome')||'').trim().replace(/\s+/g,' '),cnpj:impDoc(g(r,'cnpj')),obs:String(g(r,'obs')||'').trim(),completo:String(g(r,'completo')||'').trim()});
+  });
+  // junta ARLA ao abastecimento de combustível do mesmo veículo/dia/posto/KM
+  const combs=itens.filter(i=>!i.arla),regs=combs.map(c=>({...c,arlaItem:null}));
+  const avulsos=[];
+  for(const a of itens.filter(i=>i.arla)){
+    const cand=regs.filter(c=>!c.arlaItem&&c.placa===a.placa&&c.data===a.data&&Math.abs(c.km-a.km)<=20&&(!a.cnpj||!c.cnpj||a.cnpj===c.cnpj))
+      .sort((x,y)=>Math.abs(x.km-a.km)-Math.abs(y.km-a.km)||Math.abs((+x.doc||0)-(+a.doc||0))-Math.abs((+y.doc||0)-(+a.doc||0)));
+    if(cand.length)cand[0].arlaItem=a;else avulsos.push({...a,arlaItem:null});
+  }
+  const todos=[...regs,...avulsos];
+  // já importados antes (mesmo nº de documento)
+  const jaDocs=new Set();T.abastecimentos.forEach(a=>(a.docsOrigem||[]).forEach(d=>jaDocs.add(d)));
+  const novos=[],repetidos=[];
+  for(const r of todos){const docs=[r.doc,r.arlaItem&&r.arlaItem.doc].filter(Boolean);(docs.some(d=>jaDocs.has(d))?repetidos:novos).push(r)}
+  novos.sort((a,b)=>a.data<b.data?-1:a.data>b.data?1:a.placa<b.placa?-1:a.placa>b.placa?1:a.km-b.km);
+  const vNovos=[...new Set(novos.map(r=>r.placa))].filter(p=>!T.veiculos.some(v=>v.placa===p));
+  const mNovos=[...new Set(novos.map(r=>r.mnome).filter(Boolean))].filter(n=>!T.motoristas.some(m=>m.nome.toUpperCase()===n.toUpperCase()));
+  const pNovos=[...new Set(novos.map(r=>r.cnpj||r.fnome).filter(Boolean))].filter(k=>!T.postos.some(p=>p.cnpj===k||(!/^\d+$/.test(k)&&p.nome.toUpperCase()===k.toUpperCase())));
+  const gaps=[];
+  Object.values(novos.filter(r=>!r.arla).reduce((m,r)=>((m[r.placa]=m[r.placa]||[]).push(r),m),{})).forEach(l=>{l.sort((a,b)=>a.data<b.data?-1:a.data>b.data?1:a.km-b.km);for(let i=1;i<l.length;i++){const g=l[i].km-l[i-1].km;if(g>0&&g<5000)gaps.push(g)}});
+  gaps.sort((a,b)=>a-b);
+  const p95=gaps.length>=10?gaps[Math.floor(gaps.length*0.95)]:null;
+  return {arquivo:nomeArq,linhas:rows.length-hi-1,p95,acimaMax:gaps.filter(g=>g>cfgG().distMax).length,sugMax:p95?Math.ceil(p95*1.1/100)*100:null,itens,ignorados,registros:novos,repetidos,vNovos,mNovos,pNovos,
+    nComb:novos.filter(r=>!r.arla).length,nJunto:novos.filter(r=>r.arlaItem).length,nAvulso:novos.filter(r=>r.arla).length,
+    total:sum(novos,r=>r.total+(r.arlaItem?r.arlaItem.total:0)),de:novos.length?novos[0].data:'',ate:novos.length?novos[novos.length-1].data:''};
+}
+async function flushBulk(prog){
+  const B=BULK;BULK=null;if(!B)return;
+  const tabs=Object.keys(B),total=tabs.reduce((s,t)=>s+B[t].size,0);let done=0;
+  for(const t of tabs){
+    const recs=[...B[t].values()].map(clone);
+    if(BACKEND==='supabase'){
+      for(let i=0;i<recs.length;i+=400){const ch=recs.slice(i,i+400);const {error}=await SB.from(t).upsert(ch.map(r=>({id:r.id,dados:r})));if(error)throw error;done+=ch.length;prog&&prog(done,total)}
+    }else if(BACKEND==='db'){
+      await pool(recs.map(r=>()=>withRetry(()=>DBH.collection(colName(t)).doc(r.id).set(r))),6,()=>{done++;prog&&prog(done,total)});
+    }else{saveLocal(t);done+=recs.length;prog&&prog(done,total)}
+  }
+}
+const IGNORAR_IMP=['PRECO_ULTIMO','ARLA_PRECO_ULTIMO'];
+async function executarImportacao(prog){
+  const P=IMP;if(!P||!P.registros.length)return;
+  BULK={};const opId=uid(),res={criados:0,validados:0,verificar:0,pendentes:0,suspeitos:[],erros:[]};
+  try{
+    const vMap={},mMap={},pMap={};
+    // veículos
+    for(const r of P.registros){
+      if(vMap[r.placa])continue;
+      let v=T.veiculos.find(x=>x.placa===r.placa);
+      if(!v){
+        const regsV=P.registros.filter(x=>x.placa===r.placa&&!x.arla),cnt={};regsV.forEach(x=>cnt[x.comb]=(cnt[x.comb]||0)+1);
+        const comb=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0]?.[0]||'Diesel S10',md=impModelo(r.vdesc,r.placa);
+        const temArla=P.registros.some(x=>x.placa===r.placa&&(x.arla||x.arlaItem));
+        v={id:uid(),codigo:r.vcod||'',placa:r.placa,marca:md.marca,modelo:md.modelo||'(completar)',ano:'',tipo:comb==='Gasolina'||comb==='Etanol'?'Leve':'Cavalo mecânico',combustivel:comb,capacidade:0,capacidadeArla:0,
+          kmInicial:0,kmAtual:0,status:'ATIVO',obs:'Cadastrado pela importação da planilha '+P.arquivo+(temArla?' (usa ARLA)':'')+'. Completar capacidade dos tanques.',cfg:{ativo:false},criadoEm:new Date().toISOString(),origem:'Planilha'};
+        put('veiculos',v);addAudit({acao:'Criação',entidade:'Veículo',registro:v.placa,campo:'Cadastro',novo:'Importado da planilha',status:'OK'});
+      }
+      vMap[r.placa]=v;
+    }
+    // motoristas
+    for(const r of P.registros){
+      if(!r.mnome||mMap[r.mnome])continue;
+      let m=T.motoristas.find(x=>x.nome.toUpperCase()===r.mnome.toUpperCase())||(r.mcod&&T.motoristas.find(x=>x.matricula===r.mcod));
+      if(!m){
+        const nome=r.mnome.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()).replace(/\s(De|Da|Do|Dos|Das|E)\s/g,s=>s.toLowerCase());
+        m={id:uid(),nome,cpf:'',matricula:r.mcod||('IMP'+(T.motoristas.length+1)),telefone:'',status:'ATIVO',veiculoId:'',obs:'Cadastrado pela importação da planilha. Completar CPF e telefone.',criadoEm:new Date().toISOString(),origem:'Planilha'};
+        put('motoristas',m);addAudit({acao:'Criação',entidade:'Motorista',registro:m.nome,campo:'Cadastro',novo:'Importado da planilha',status:'OK'});
+      }
+      mMap[r.mnome]=m;
+    }
+    // postos
+    const pKey=r=>r.cnpj||r.fnome;
+    for(const r of P.registros){
+      const k=pKey(r);if(!k||pMap[k])continue;
+      let p=T.postos.find(x=>(r.cnpj&&x.cnpj===r.cnpj)||(!r.cnpj&&x.nome.toUpperCase()===r.fnome.toUpperCase()));
+      if(!p){
+        p={id:uid(),nome:r.fnome||('Posto '+r.cnpj),cnpj:r.cnpj,endereco:'',cidade:impCidade(r.fnome),uf:'',telefone:'',responsavel:'',status:'ATIVO',obs:'Cadastrado pela importação da planilha.',criadoEm:new Date().toISOString(),origem:'Planilha'};
+        put('postos',p);addAudit({acao:'Criação',entidade:'Posto',registro:p.nome,campo:'Cadastro',novo:'Importado da planilha',status:'OK'});
+      }
+      pMap[k]=p;
+    }
+    if(!T.motoristas.length){toast('A planilha não tem motoristas.','err');BULK=null;return}
+    const semMot=T.motoristas.find(m=>m.nome==='Motorista não informado')||null;
+    // abastecimentos, em ordem cronológica, com todas as validações
+    const horaSeq={};
+    let n=0;
+    for(const r of P.registros){
+      n++;if(n%20===0){prog&&prog('Validando '+n+' de '+P.registros.length+'…');await sleep(0)}
+      const v=vMap[r.placa],p=pMap[pKey(r)];
+      let m=r.mnome?mMap[r.mnome]:null;
+      if(!m){m=semMot||T.motoristas.find(x=>x.nome==='Motorista não informado');if(!m){m={id:uid(),nome:'Motorista não informado',cpf:'',matricula:'SEM',telefone:'',status:'ATIVO',veiculoId:'',obs:'Usado em lançamentos importados sem motorista.',criadoEm:new Date().toISOString()};put('motoristas',m)}}
+      if(!p){res.erros.push('Linha '+r.linha+': sem posto/fornecedor');continue}
+      const hk=r.placa+'|'+r.data;horaSeq[hk]=(horaSeq[hk]||0)+1;
+      const hora=r.hora||pad(Math.min(23,7+horaSeq[hk]))+':00';
+      const ar=r.arla?r:r.arlaItem;
+      const d={veiculoId:v.id,data:r.data,hora,motoristaId:m.id,postoId:p.id,km:r.km,nota:r.doc||('IMP-'+r.linha),
+        obs:[r.obs&&!/^ok\.?$/i.test(r.obs)?r.obs:'',ar&&!r.arla&&ar.doc?'ARLA doc '+ar.doc:'',r.completo&&/n[aã]o/i.test(r.completo)?'Abastecimento não completo':''].filter(Boolean).join(' | '),
+        tipo:r.arla?'ARLA':'COMB',combustivel:r.arla?ARLA:r.comb,litros:r.arla?0:r.qtd,valorLitro:r.arla?0:r.vu,
+        comArla:!!ar,arlaLitros:ar?ar.qtd:0,arlaValorLitro:ar?ar.vu:0,arlaTotal:ar?ar.total:0};
+      const r0=validar(d);
+      r0.iss=r0.iss.filter(i=>!IGNORAR_IMP.includes(i.code));
+      const codes=r0.iss.map(i=>i.code);
+      const suspeito=codes.includes('KM_SEQUENCIA')||(codes.includes('DIGITACAO')&&(codes.includes('KM_ALTO')||codes.includes('VARIACAO')));
+      if(suspeito)r0.iss.push({code:'KM_SUSPEITO',level:'justify',sev:'red',icon:'🔴',titulo:'KM SUSPEITO NA IMPORTAÇÃO',
+        msg:'O hodômetro da planilha parece errado (possível dígito a mais ou fora da sequência). O registro foi importado fora da sequência de KM até ser corrigido.',
+        dados:[['Placa',v.placa],['KM na planilha',kmf(r.km)],['Último KM válido',kmf(r0.baseKm)],['Documento',r.doc||'–'],['Linha da planilha',String(r.linha)]],statusReg:'PENDENTE DE VALIDAÇÃO'});
+      const precisaJust=r0.iss.some(i=>i.level!=='confirm');
+      r0.iss.forEach(i=>{if(i.level==='hard'||i.level==='except')i.level='justify'});
+      const just=precisaJust?{motivo:'Importação de planilha',obs:'Importado de '+P.arquivo+' (linha '+r.linha+', doc '+(r.doc||'–')+'). Ocorrências: '+r0.iss.filter(i=>i.level!=='confirm').map(i=>FLAG_L[i.code]||i.code).join(', ')+'. Conferir e corrigir se necessário.'}:null;
+      const a=await registrarNovo(d,r0,just);
+      a.origem='Planilha';a.arquivoOrigem=P.arquivo;a.docsOrigem=[r.doc,ar&&!r.arla?ar.doc:null].filter(Boolean);a.completo=!/n[aã]o/i.test(r.completo||'');
+      put('abastecimentos',a);
+      addHist(a,{acao:'Importação',campo:'Origem',novo:'Planilha '+P.arquivo+', linha '+r.linha,opId});
+      res.criados++;
+      if(a.status==='PENDENTE_APROVACAO')res.pendentes++;else if(a.status==='VERIFICAR')res.verificar++;else res.validados++;
+      if(suspeito)res.suspeitos.push(a.placa+' KM '+kmf(a.km)+' (#'+a.seq+')');
+    }
+    T.veiculos.forEach(v=>{const k=lastKmOf(v);if(v.kmAtual!==k){v.kmAtual=k;put('veiculos',v)}});
+    addAudit({acao:'Importação de planilha',entidade:'Sistema',registro:P.arquivo,campo:'Abastecimentos',novo:res.criados+' criados ('+res.validados+' validados, '+res.verificar+' para verificação, '+res.pendentes+' pendentes)',
+      motivo:P.vNovos.length+' veículos, '+P.mNovos.length+' motoristas e '+P.pNovos.length+' postos novos; '+P.ignorados.length+' linhas ignoradas; '+P.repetidos.length+' já importadas',status:'OK'});
+    prog&&prog('Gravando no banco de dados…');
+    await flushBulk((d,t)=>prog&&prog('Gravando no banco de dados: '+d+' de '+t+'…'));
+    return res;
+  }catch(e){
+    console.error(e);
+    if(BULK){BULK=null}
+    toast('Falha na importação: '+(e.message||e),'err');
+    try{await loadAll()}catch(_){}
+    return null;
+  }
+}
+function pgImportar(){
+  const P=IMP;
+  const passo1=`<div class="card">${secHead('upload','s-orange','Importar planilha de abastecimentos','Excel (.xls, .xlsx) ou CSV exportado do seu sistema de despesas')}
+    <p class="small muted" style="margin:0 0 12px">O sistema reconhece as colunas: Nº Documento, Data, Tipo de Despesa, Valor Total, Veículo (código, descrição, placa, hodômetro), Motorista (código, nome), Fornecedor (nome, CNPJ), Quantidade, Valor Unitário, Observação e Abastecimento Completo.
+    Veículos, motoristas e postos que não existirem são cadastrados automaticamente. O ARLA lançado no mesmo dia, posto e KM é juntado ao abastecimento de diesel. Cada linha passa por todas as validações de KM, capacidade, preço e duplicidade.</p>
+    <div id="impDrop" style="border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;display:grid;gap:10px;justify-items:center">
+      <label class="btn primary" style="cursor:pointer">📄 Escolher planilha<input type="file" id="impFile" accept=".xls,.xlsx,.csv,.txt,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" style="position:absolute;opacity:0;width:1px;height:1px"></label>
+      <span class="small muted">ou arraste o arquivo para cá</span>
+      <span id="impMsg" class="small" style="font-weight:600"></span></div>
+    ${IMP&&IMP.erro?`<div class="issue red" style="margin-top:12px"><h4>Não foi possível ler a planilha</h4><div class="small">${esc(IMP.erro)}</div></div>`:''}</div>`;
+  if(!P||P.erro)return passo1;
+  if(P.resultado){const R=P.resultado;
+    return passo1+`<div class="card" style="border:1px solid var(--green)">${secHead('shield','s-green','Importação concluída',P.arquivo)}
+    ${kvHtml([['Abastecimentos criados',String(R.criados)],['🟢 Validados',String(R.validados)],['🟠 Para verificação',String(R.verificar)],['⚠️ Pendentes de aprovação',String(R.pendentes)],['Veículos novos',String(P.vNovos.length)],['Motoristas novos',String(P.mNovos.length)],['Postos novos',String(P.pNovos.length)],['Linhas ignoradas',String(P.ignorados.length)]])}
+    ${R.suspeitos.length?`<div class="issue red" style="margin-top:12px"><h4>🔴 KM suspeito (fora da sequência até ser corrigido)</h4><div class="small">${R.suspeitos.map(esc).join('<br>')}</div><div class="small muted">Abra o registro, clique em Alterar e corrija o KM. Depois de corrigido ele volta para a sequência do veículo.</div></div>`:''}
+    ${P.de?`<p class="small" style="margin:12px 0 0">Os filtros de Dashboard, Histórico, Consumo e Relatórios foram ajustados para o período da planilha: <b>${dBR(P.de)} a ${dBR(P.ate)}</b>. Para voltar ao mês de fechamento, escolha "Mês" no filtro de período.</p>`:''}
+    <div class="btns" style="margin-top:14px"><a class="btn primary" href="#/dashboard">Ver Dashboard</a><a class="btn" href="#/historico">Ver abastecimentos</a><a class="btn" href="#/consumo">Ver consumo (km/L)</a><a class="btn" href="#/alertas">Ver alertas</a><a class="btn" href="#/veiculos">Completar cadastro dos veículos</a></div></div>`}
+  const prev=P.registros.slice(0,40);
+  return passo1+`<div class="card">${secHead('chart','s-blue','Conferência antes de importar',P.arquivo)}
+   ${kvHtml([['Linhas lidas',String(P.linhas)],['Abastecimentos a criar',String(P.registros.length)],['De combustível',String(P.nComb)],['Destes, com ARLA junto',String(P.nJunto)],['Somente ARLA',String(P.nAvulso)],['Período',P.de?dBR(P.de)+' a '+dBR(P.ate):'–'],['Valor total',brl(P.total)],['Veículos novos',String(P.vNovos.length)],['Motoristas novos',String(P.mNovos.length)],['Postos novos',String(P.pNovos.length)],['Já importadas antes (puladas)',String(P.repetidos.length)],['Linhas ignoradas',String(P.ignorados.length)]])}
+   ${!P.registros.length&&P.repetidos.length?`<div class="issue yellow" style="margin-top:12px"><h4>⚠️ Esta planilha já foi importada</h4><div class="small">Todas as ${P.repetidos.length} linhas já existem no sistema (mesmo número de documento). Nada novo para importar.</div></div>`:''}
+   ${P.sugMax&&P.sugMax>cfgG().distMax&&P.acimaMax>=3?`<div class="issue orange" style="margin-top:12px"><h4>🟠 Distância máxima entre abastecimentos</h4>
+     <div class="small">Nesta planilha, <b>${P.acimaMax}</b> intervalos passam do limite atual de <b>${kmf(cfgG().distMax)} km</b>. Na sua frota, 95% dos intervalos ficam abaixo de <b>${kmf(P.p95)} km</b>.
+     Com o limite atual, esses lançamentos entram como <b>exceção pendente de aprovação</b>.</div>
+     <div class="btns"><button class="btn sm primary" data-act="impCfg">Usar ${kmf(P.sugMax)} km como distância máxima</button><span class="small muted">Você pode mudar depois em Configurações. Veículos com parâmetros específicos não são afetados.</span></div></div>`:''}
+   ${P.ignorados.length?`<details style="margin-top:12px"><summary class="small" style="cursor:pointer;font-weight:700">Ver linhas ignoradas (${P.ignorados.length})</summary><div class="tbl-wrap" style="margin-top:8px"><table><thead><tr><th>Linha</th><th>Documento</th><th>Placa</th><th>Tipo</th><th>Motivo</th></tr></thead><tbody>${P.ignorados.map(x=>`<tr><td>${x.linha}</td><td>${esc(x.doc)}</td><td>${esc(x.placa)}</td><td>${esc(x.tipo)}</td><td>${esc(x.motivo)}</td></tr>`).join('')}</tbody></table></div></details>`:''}
+   <div class="btns" style="margin-top:14px"><button class="btn primary lg" data-act="impRun" ${P.registros.length?'':'disabled'}>Importar ${P.registros.length} abastecimentos</button><button class="btn ghost" data-act="impCancel">Cancelar</button></div>
+   <div id="impProg" class="small muted" style="margin-top:8px"></div></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Placa</th><th>Tipo</th><th class="num">KM</th><th class="num">Litros</th><th class="num">R$/L</th><th class="num">Total</th><th class="num">ARLA (L)</th><th class="num">ARLA R$</th><th>Motorista</th><th>Posto</th><th>Doc.</th></tr></thead><tbody>
+   ${prev.map(r=>{const a=r.arla?r:r.arlaItem;return `<tr><td class="nowrap">${dBR(r.data)}</td><td><b>${esc(r.placa)}</b></td><td>${r.arla?badge('Somente ARLA','blue'):esc(r.comb)+(r.arlaItem?' '+badge('+ ARLA','blue'):'')}</td><td class="num">${kmf(r.km)}</td><td class="num">${r.arla?'–':nf(r.qtd)}</td><td class="num">${r.arla?'–':nf(r.vu,3)}</td><td class="num">${r.arla?'–':brl(r.total)}</td><td class="num">${a?nf(a.qtd):'–'}</td><td class="num">${a?brl(a.total):'–'}</td><td>${esc(r.mnome)}</td><td>${esc(r.fnome)}</td><td>${esc(r.doc)}</td></tr>`}).join('')}
+  </tbody></table></div>${P.registros.length>40?`<p class="small muted">Mostrando 40 de ${P.registros.length}.</p>`:''}`;
+}
+async function impArquivo(file){
+  if(!file)return;
+  const msg=$('#impMsg');
+  if(!window.XLSX){IMP={erro:'O leitor de planilhas não carregou. Recarregue a página (Ctrl+F5) e tente de novo.'};render();return}
+  if(msg)msg.textContent='Lendo '+file.name+'…';
+  try{
+    const buf=new Uint8Array(await file.arrayBuffer());
+    IMP=lerPlanilha(buf,file.name);
+    if(!IMP.registros.length&&!IMP.repetidos.length&&!IMP.ignorados.length)IMP={erro:'A planilha "'+file.name+'" foi aberta, mas não tem linhas de abastecimento abaixo do cabeçalho.'};
+  }catch(e){console.error(e);IMP={erro:(e&&e.message?e.message:'Erro desconhecido')+' (arquivo: '+file.name+')'}}
+  render();
+}
+function afterImportar(){
+  const f=$('#impFile');if(!f)return;
+  f.addEventListener('change',()=>{const file=f.files[0];f.value='';impArquivo(file)});
+  const dz=$('#impDrop');
+  if(dz){
+    ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.style.borderColor='var(--orange)';dz.style.background='var(--orange-soft)'}));
+    ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.style.borderColor='';dz.style.background=''}));
+    dz.addEventListener('drop',e=>{const file=e.dataTransfer&&e.dataTransfer.files[0];impArquivo(file)});
+  }
+}
+
+/* ================= PREÇOS POR POSTO ================= */
+function eventosPreco(f){
+  const tol=isNum(+cfgG().precoPostoTol)?+cfgG().precoPostoTol:0.01;
+  const todos=ativos().slice().sort(byChrono),[de,ate]=rangeOf(f),ev=[],atual=[];
+  const grupos={};
+  for(const a of todos){
+    if(f.postoId&&a.postoId!==f.postoId)continue;
+    for(const ch of precoChecks(a)){
+      if(f.combustivel&&ch.comb!==f.combustivel)continue;
+      const k=a.postoId+'|'+ch.comb;(grupos[k]=grupos[k]||[]).push({a,preco:ch.preco,lit:ch.lit,comb:ch.comb});
+    }
+  }
+  for(const [k,l] of Object.entries(grupos)){
+    const [postoId,comb]=k.split('|');
+    const noPer=l.filter(x=>x.a.data>=de&&x.a.data<=ate);
+    let idxEv=[];
+    for(let i=1;i<l.length;i++){const dif=r3(l[i].preco-l[i-1].preco);if(Math.abs(dif)>=0.0005&&Math.abs(dif)+1e-9>=tol)idxEv.push(i)}
+    idxEv.forEach((i,n)=>{
+      const fim=n+1<idxEv.length?idxEv[n+1]:l.length,cur=l[i],prev=l[i-1];
+      if(cur.a.data<de||cur.a.data>ate)return;
+      const seg=l.slice(i,fim).filter(x=>Math.abs(x.preco-cur.preco)<0.0005),lit=sum(seg,x=>x.lit),dif=r3(cur.preco-prev.preco);
+      const al=T.alertas.find(x=>x.tipo==='PRECO_POSTO'&&x.abastId===cur.a.id&&x.combustivel===comb);
+      ev.push({postoId,comb,data:cur.a.data,placa:cur.a.placa,abastId:cur.a.id,refData:prev.a.data,refPlaca:prev.a.placa,ant:prev.preco,novo:cur.preco,dif,pc:dif/prev.preco*100,lit,impacto:r2(dif*lit),nAbast:seg.length,al});
+    });
+    if(noPer.length){
+      const ult=l[l.length-1],pri=noPer[0],L=sum(noPer,x=>x.lit),V=sum(noPer,x=>x.preco*x.lit);
+      atual.push({postoId,comb,ult:ult.preco,ultData:ult.a.data,ultPlaca:ult.a.placa,ini:pri.preco,varPer:r3(noPer[noPer.length-1].preco-pri.preco),n:noPer.length,lit:L,media:L?V/L:null,serie:noPer.map(x=>x.preco)});
+    }
+  }
+  ev.sort((a,b)=>a.data<b.data?1:a.data>b.data?-1:Math.abs(b.dif)-Math.abs(a.dif));
+  return {ev,atual};
+}
+function pgPrecos(){
+  if(!S.prc)S.prc=newFilter({mostrar:'aumentos'});
+  const f=S.prc,{ev,atual}=eventosPreco(f);
+  const aum=ev.filter(e=>e.dif>0),red=ev.filter(e=>e.dif<0);
+  const lista=f.mostrar==='aumentos'?aum:f.mostrar==='reducoes'?red:f.mostrar==='negociar'?aum.filter(e=>e.al&&e.al.status==='ABERTO'):ev;
+  const maior=[...aum].sort((a,b)=>b.dif-a.dif)[0],impacto=sum(aum,e=>e.impacto),aNeg=aum.filter(e=>e.al&&e.al.status==='ABERTO').length;
+  const combs=[...COMBUSTIVEIS,ARLA];
+  const st=e=>!e.al?(e.dif>0?badge('sem alerta','gray'):badge('redução','green')):e.al.status==='ABERTO'?badge('A negociar','orange'):badge(e.al.negociacao?e.al.negociacao.resultado:'Tratado','green');
+  // gráfico de evolução: postos com mais litros no período
+  const top=[...atual].sort((a,b)=>b.lit-a.lit).slice(0,f.postoId?4:5);
+  const datas=[...new Set(ativos().filter(a=>top.some(t=>t.postoId===a.postoId)&&(()=>{const [de,ate]=rangeOf(f);return a.data>=de&&a.data<=ate})()).map(a=>a.data))].sort();
+  const series=top.map((t,i)=>{let last=null;const vals=datas.map(d=>{const l=ativos().filter(a=>a.postoId===t.postoId&&a.data===d).sort(byChrono);for(const a of l){const ch=precoChecks(a).find(c=>c.comb===t.comb);if(ch)last=ch.preco}return last});return {name:pNome(t.postoId).slice(0,28)+' – '+t.comb,values:vals,color:PALETTE[i%PALETTE.length]}});
+  return `${filterBar('prc',{skip:['veiculoId','motoristaId'],extra:`<label class="fl">Mostrar<select data-f="prc.mostrar">${opts([['aumentos','Aumentos'],['negociar','Só a negociar'],['reducoes','Reduções'],['todas','Todas as alterações']],f.mostrar)}</select></label>`}).replace(opts(COMBUSTIVEIS,f.combustivel),opts(combs,f.combustivel))}
+  <div class="kpis">
+    <div class="kpi lead">${icon('trend','red')}<div class="l">Aumentos de preço</div><div class="v" style="color:var(--red)">${aum.length}</div><div class="s">${esc(periodLabel(f))}</div></div>
+    <div class="kpi">${icon('alert','orange')}<div class="l">A negociar</div><div class="v">${aNeg}</div><div class="s">aumentos sem negociação registrada</div></div>
+    <div class="kpi">${icon('tag','red')}<div class="l">Maior aumento</div><div class="v">${maior?'+ '+brl(maior.dif):'–'}</div><div class="s">${maior?esc(pNome(maior.postoId))+' ('+nf(maior.pc,1)+'%)':'sem aumentos'}</div></div>
+    <div class="kpi">${icon('money','red')}<div class="l">Pago a mais pelos aumentos</div><div class="v">${brl(impacto)}</div><div class="s">diferença × litros abastecidos no novo preço</div></div>
+  </div>
+  <div class="card">${secHead('alert','s-orange','Alterações de preço no mesmo posto','Compare o preço novo com o abastecimento anterior no mesmo posto e use para negociar','<button class="btn sm" data-act="expPrecos">⬇ Excel</button>')}
+   ${lista.length?`<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Posto</th><th>Combustível</th><th class="num">Preço anterior</th><th class="num">Preço novo</th><th class="num">Diferença</th><th class="num">%</th><th class="num">Litros no novo preço</th><th class="num">Impacto</th><th>Situação</th><th></th></tr></thead><tbody>
+   ${lista.map(e=>`<tr><td class="nowrap">${dBR(e.data)}<br><span class="small muted">${esc(e.placa)}</span></td><td><b>${esc(pNome(e.postoId))}</b></td><td>${esc(e.comb)}</td>
+    <td class="num">${brl(e.ant)}<br><span class="small muted">${dBRs(e.refData)} ${esc(e.refPlaca)}</span></td><td class="num"><b>${brl(e.novo)}</b></td>
+    <td class="num" style="color:${e.dif>0?'var(--red)':'var(--green)'};font-weight:700">${e.dif>0?'+ ':'- '}${brl(Math.abs(e.dif))}</td><td class="num" style="color:${e.dif>0?'var(--red)':'var(--green)'}">${pctf(e.pc)}</td>
+    <td class="num">${nf(e.lit,0)} L<br><span class="small muted">${e.nAbast} abast.</span></td><td class="num" style="font-weight:700">${brl(e.impacto)}</td><td>${st(e)}</td>
+    <td class="nowrap">${e.al&&e.al.status==='ABERTO'&&can('alertas.resolver')?`<button class="btn sm primary" data-act="negociar" data-id="${e.al.id}">Negociar</button>`:e.al?`<button class="btn sm ghost" data-act="openAlert" data-id="${e.al.id}">Ver</button>`:''}</td></tr>`).join('')}
+   </tbody></table></div>`:'<div class="empty">Nenhuma alteração de preço nos postos neste período. 🟢</div>'}</div>
+  <div class="grid-2">
+   <div class="card">${secHead('chart','s-blue','Evolução do preço por posto','Postos com mais litros no período')}${datas.length>1?lineChart(datas.map(dBRs),series,{fmt:v=>'R$ '+nf(v,2),zero:false}):'<div class="empty">Sem dados suficientes no período.</div>'}</div>
+   <div class="card">${secHead('pin','navy','Preço atual em cada posto','Último preço pago e variação dentro do período')}
+    ${atual.length?`<div class="tbl-wrap"><table><thead><tr><th>Posto</th><th>Combustível</th><th class="num">Último preço</th><th class="num">Variação no período</th><th class="num">Preço médio</th><th class="num">Litros</th><th>Tendência</th></tr></thead><tbody>
+    ${[...atual].sort((a,b)=>b.lit-a.lit).map(t=>`<tr><td><b>${esc(pNome(t.postoId))}</b></td><td>${esc(t.comb)}</td><td class="num"><b>${brl(t.ult)}</b><br><span class="small muted">${dBRs(t.ultData)}</span></td>
+     <td class="num" style="color:${t.varPer>0?'var(--red)':t.varPer<0?'var(--green)':'inherit'};font-weight:700">${t.varPer?(t.varPer>0?'+ ':'- ')+brl(Math.abs(t.varPer)):'='}</td><td class="num">${brl(t.media)}</td><td class="num">${nf(t.lit,0)}</td><td>${spark(t.serie,{color:t.varPer>0?'var(--red)':'var(--green)'})}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sem abastecimentos no período.</div>'}</div>
+  </div>
+  <p class="small muted" style="margin:0">Uma alteração é registrada quando o preço por litro de um abastecimento é diferente do abastecimento anterior no mesmo posto e com o mesmo combustível, de qualquer placa. Variação mínima e aviso de reduções em Configurações.</p>`;
+}
+
+/* ================= CONSUMO POR VEÍCULO (km/L) ================= */
+function spark(vals,{w=110,h=28,color='var(--blue)'}={}){
+  const v=vals.filter(isNum);if(v.length<2)return '<span class="muted small">–</span>';
+  const mx=Math.max(...v),mn=Math.min(...v),sp=mx-mn||1,st=w/(vals.length-1);
+  let d='',pen=false;vals.forEach((x,i)=>{if(!isNum(x)){pen=false;return}d+=(pen?'L':'M')+(i*st).toFixed(1)+' '+(h-3-(x-mn)/sp*(h-6)).toFixed(1)+' ';pen=true});
+  const lx=(vals.length-1)*st,ly=h-3-(v[v.length-1]-mn)/sp*(h-6);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linejoin="round"/><circle cx="${lx}" cy="${ly}" r="2.6" fill="${color}"/></svg>`;
+}
+const consValido=a=>a.kmPercorrido>0&&a.litros>0&&a.tipo!=='ARLA'&&a.status!=='PENDENTE_APROVACAO';
+function consumoVeiculos(f){
+  const list=filtrar(ativos(),f).filter(consValido);
+  const rows=T.veiculos.filter(v=>(!f.tipoVeic||v.tipo===f.tipoVeic)).map(v=>{
+    const l=list.filter(a=>a.veiculoId===v.id).sort(byChrono);
+    const km=sum(l,a=>a.kmPercorrido),lit=sum(l,a=>a.litros),val=sum(l,a=>a.valorTotal);
+    const cons=l.map(a=>a.consumo).filter(isNum),ult=l[l.length-1];
+    return {v,l,n:l.length,km,lit,media:lit?km/lit:null,custoKm:km?val/km:null,ult:ult?ult.consumo:null,ultData:ult?ult.data:'',
+      melhor:cons.length?Math.max(...cons):null,pior:cons.length?Math.min(...cons):null,meta:v.metaConsumo||null,serie:l.slice(-10).map(a=>a.consumo)};
+  });
+  // média por modelo (referência quando não há meta)
+  const mKey=v=>{const m=String(v.modelo||'').trim();return !m||m==='(completar)'?'':(v.marca+' '+m).trim().toUpperCase().replace(/\s+/g,' ')};
+  const porModelo={};rows.filter(r=>r.lit>0&&mKey(r.v)).forEach(r=>{const k=mKey(r.v);(porModelo[k]=porModelo[k]||{km:0,lit:0,n:0});porModelo[k].km+=r.km;porModelo[k].lit+=r.lit;porModelo[k].n++});
+  rows.forEach(r=>{const g=mKey(r.v)?porModelo[mKey(r.v)]:null;r.mediaModelo=g&&g.n>1?g.km/g.lit:null;
+    r.ref=r.meta||r.mediaModelo;r.refTipo=r.meta?'meta':r.mediaModelo?'média do modelo':'';r.vsRef=r.media&&r.ref?(r.media-r.ref)/r.ref*100:null;});
+  const kmT=sum(rows,r=>r.km),litT=sum(rows,r=>r.lit);
+  return {rows,frota:litT?kmT/litT:null,list};
+}
+function pgConsumo(){
+  if(!S.cons)S.cons=newFilter({tipoVeic:'',ordem:'media'});
+  const f=S.cons,{rows,frota}=consumoVeiculos(f);
+  const com=rows.filter(r=>r.media);
+  const ord={media:(a,b)=>(b.media||0)-(a.media||0),pior:(a,b)=>(a.media||99)-(b.media||99),vs:(a,b)=>(a.vsRef??99)-(b.vsRef??99),placa:(a,b)=>a.v.placa.localeCompare(b.v.placa)}[f.ordem]||((a,b)=>0);
+  const lista=[...rows].sort(ord);
+  const melhor=[...com].sort((a,b)=>b.media-a.media)[0],pior=[...com].sort((a,b)=>a.media-b.media)[0];
+  const abaixo=com.filter(r=>isNum(r.vsRef)&&r.vsRef<-5);
+  const cor=r=>!isNum(r.vsRef)?'var(--blue)':r.vsRef<-5?'var(--red)':r.vsRef<0?'var(--orange)':'var(--green)';
+  const tipos=[...new Set(T.veiculos.map(v=>v.tipo).filter(Boolean))];
+  return `${filterBar('cons',{skip:['veiculoId','motoristaId','postoId'],extra:`<label class="fl">Tipo de veículo<select data-f="cons.tipoVeic"><option value="">Todos</option>${opts(tipos,f.tipoVeic)}</select></label><label class="fl">Ordenar por<select data-f="cons.ordem">${opts([['media','Maior km/L'],['pior','Menor km/L'],['vs','Mais abaixo da referência'],['placa','Placa']],f.ordem)}</select></label>`})}
+  ${avisoPeriodo('cons',rows.reduce((s,r)=>s+r.n,0))}
+  <div class="kpis">
+    <div class="kpi lead">${icon('gauge','green')}<div class="l">Média da frota</div><div class="v">${frota?nf(frota)+' km/L':'–'}</div><div class="s">${esc(periodLabel(f))}</div></div>
+    <div class="kpi">${icon('trend','green')}<div class="l">Melhor consumo</div><div class="v">${melhor?nf(melhor.media)+' km/L':'–'}</div><div class="s">${melhor?esc(melhor.v.placa+' '+melhor.v.modelo):'sem dados'}</div></div>
+    <div class="kpi">${icon('alert','red')}<div class="l">Pior consumo</div><div class="v">${pior?nf(pior.media)+' km/L':'–'}</div><div class="s">${pior?esc(pior.v.placa+' '+pior.v.modelo):'sem dados'}</div></div>
+    <div class="kpi">${icon('truck','orange')}<div class="l">Abaixo da referência</div><div class="v">${abaixo.length}</div><div class="s">mais de 5% abaixo da meta ou da média do modelo</div></div>
+  </div>
+  <div class="card">${secHead('chart','s-blue','Ranking de consumo (km/L)','Verde: na meta ou acima. Laranja: até 5% abaixo. Vermelho: mais de 5% abaixo.','<button class="btn sm" data-act="expCons">⬇ Excel</button>')}
+    ${hbars(com.sort((a,b)=>b.media-a.media).map(r=>({label:r.v.placa,value:r.media,color:cor(r)})),{fmt:v=>nf(v)+' km/L'})}</div>
+  <div class="tbl-wrap"><table><thead><tr><th>Placa</th><th>Modelo</th><th>Tipo</th><th class="num">Abast.</th><th class="num">KM percorrido</th><th class="num">Litros</th><th class="num">km/L médio</th><th class="num">Referência</th><th class="num">vs ref.</th><th class="num">Último km/L</th><th class="num">Melhor</th><th class="num">Pior</th><th class="num">R$/km</th><th>Tendência</th></tr></thead><tbody>
+  ${lista.map(r=>`<tr class="click" data-act="consVeic" data-id="${r.v.id}"><td><b>${esc(r.v.placa)}</b></td><td>${esc((r.v.marca+' '+r.v.modelo).trim())}</td><td>${esc(r.v.tipo||'')}</td><td class="num">${r.n}</td><td class="num">${kmf(r.km)}</td><td class="num">${nf(r.lit,0)}</td>
+   <td class="num"><b style="color:${r.media?cor(r):'inherit'}">${r.media?nf(r.media):'–'}</b></td><td class="num">${r.ref?nf(r.ref)+'<br><span class="small muted">'+r.refTipo+'</span>':'–'}</td>
+   <td class="num">${isNum(r.vsRef)?`<span style="color:${cor(r)};font-weight:700">${pctf(r.vsRef)}</span>`:'–'}</td><td class="num">${r.ult?nf(r.ult)+'<br><span class="small muted">'+dBRs(r.ultData)+'</span>':'–'}</td>
+   <td class="num">${r.melhor?nf(r.melhor):'–'}</td><td class="num">${r.pior?nf(r.pior):'–'}</td><td class="num">${r.custoKm?brl(r.custoKm):'–'}</td><td>${spark(r.serie,{color:r.media?cor(r):'var(--blue)'})}</td></tr>`).join('')||'<tr><td colspan="14" class="empty">Nenhum veículo cadastrado.</td></tr>'}
+  </tbody></table></div>
+  <p class="small muted" style="margin:0">km/L médio = KM percorrido ÷ litros no período (lançamentos pendentes de aprovação e somente ARLA não entram). Defina a meta de cada veículo em Frota &gt; Veículos &gt; editar. Sem meta, a referência é a média dos veículos do mesmo modelo.</p>`;
+}
+function consVeicModal(id){
+  const v=V(id);if(!v)return;
+  const f=S.cons||newFilter();const l=filtrar(ativos(),f).filter(a=>a.veiculoId===id&&consValido(a)).sort(byChrono);
+  const km=sum(l,a=>a.kmPercorrido),lit=sum(l,a=>a.litros),media=lit?km/lit:null;
+  const series=[{name:'km/L',values:l.map(a=>a.consumo),color:'#1aa971'}];
+  if(v.metaConsumo)series.push({name:'Meta',values:l.map(()=>v.metaConsumo),color:'#e5484d'});
+  if(media)series.push({name:'Média',values:l.map(()=>r3(media)),color:'#3b5bdb'});
+  openModal({title:'Consumo – '+v.placa+' '+(v.marca+' '+v.modelo).trim(),tone:'navy',wide:true,
+    html:`${kvHtml([['Período',periodLabel(f)],['Abastecimentos',String(l.length)],['KM percorrido',kmf(km)+' km'],['Litros',nf(lit,0)+' L'],['km/L médio',media?nf(media)+' km/L':'–'],['Meta',v.metaConsumo?nf(v.metaConsumo)+' km/L':'não definida']])}
+    ${l.length>=2?lineChart(l.map(a=>dBRs(a.data)),series,{fmt:x=>nf(x,1),zero:false}):'<div class="empty">São necessários pelo menos 2 abastecimentos com KM para o gráfico.</div>'}
+    <div class="tbl-wrap"><table><thead><tr><th>Data</th><th>#</th><th>Motorista</th><th>Posto</th><th class="num">KM</th><th class="num">KM perc.</th><th class="num">Litros</th><th class="num">km/L</th></tr></thead><tbody>
+    ${[...l].reverse().map(a=>`<tr class="click" data-act="openAb" data-id="${a.id}"><td class="nowrap">${dBR(a.data)}</td><td>${a.seq}</td><td>${esc(mNome(a.motoristaId))}</td><td>${esc(pNome(a.postoId))}</td><td class="num">${kmf(a.km)}</td><td class="num">${kmf(a.kmPercorrido)}</td><td class="num">${nf(a.litros)}</td><td class="num"><b>${nf(a.consumo)}</b></td></tr>`).join('')||'<tr><td colspan="8" class="empty">Sem abastecimentos com KM no período.</td></tr>'}
+    </tbody></table></div>`,
+    actions:[...(CU.perfil==='admin'?[{label:'Definir meta',kind:'ghost',on:()=>veicForm(id)}]:[]),{label:'Histórico de KM',kind:'ghost',on:()=>{$('#modalRoot').classList.remove('show');modalOpen=false;S.km.veiculoId=id;go('km')}},{label:'Fechar',kind:'primary',on:closeModal}]});
+}
+
 /* ================= ROTAS ================= */
 const ROUTES={
   dashboard:{t:'Dashboard',p:'dashboard',r:pgDash},
@@ -2654,11 +3208,14 @@ const ROUTES={
   veiculos:{t:'Veículos',p:'frota.ver',r:pgVeiculos},
   motoristas:{t:'Motoristas',p:'frota.ver',r:pgMotoristas},
   km:{t:'Histórico de KM',p:'km',r:pgKm},
+  consumo:{t:'Consumo por veículo (km/L)',p:'consumo',r:pgConsumo},
   postos:{t:'Postos',p:'postos.ver',r:pgPostos},
+  precos:{t:'Preços por posto',p:'precos',r:pgPrecos},
   alertas:{t:'Alertas',p:'alertas',r:pgAlertas},
   auditoria:{t:'Auditoria',p:'auditoria',r:pgAuditoria},
   relatorios:{t:'Relatórios',p:'relatorios',r:pgRelatorios},
   config:{t:'Configurações',p:'config',r:pgConfig,form:true},
+  importar:{t:'Importar planilha',p:'importar',r:pgImportar,a:afterImportar,form:true},
   usuarios:{t:'Usuários',p:'usuarios',r:pgUsuarios}
 };
 
@@ -2777,6 +3334,20 @@ const ACT={
   expRel:fmt=>{const R=REL[S.rel.tipo];const {rows,cols}=R.b(S.rel);exportTable(fmt,R.n,cols,rows);addAudit({acao:'Exportação',entidade:'Relatório',registro:R.n,novo:fmt.toUpperCase(),status:'OK'})},
   expAud:fmt=>{exportTable(fmt,'Auditoria',AUD_COLS,audFiltered());addAudit({acao:'Exportação',entidade:'Auditoria',registro:'Trilha de auditoria',novo:fmt.toUpperCase(),status:'OK'})},
   convite:()=>conviteModal(),
+  impCancel:()=>{IMP=null;render()},
+  verPeriodo:x=>{const [k,de,ate]=x.split('|');aplicarPeriodo(de,ate,[k]);render()},
+  consVeic:id=>consVeicModal(id),
+  negociar:id=>negociarPreco(id),
+  expPrecos:()=>{const {ev}=eventosPreco(S.prc||newFilter());exportTable('xlsx','Alteracoes de preco por posto',[C('Data',e=>dBR(e.data)),C('Posto',e=>pNome(e.postoId)),C('Combustível',e=>e.comb),C('Placa',e=>e.placa),C('Preço anterior',e=>e.ant,'n3'),C('Data anterior',e=>dBR(e.refData)),C('Placa anterior',e=>e.refPlaca),C('Preço novo',e=>e.novo,'n3'),C('Diferença R$/L',e=>e.dif,'n3'),C('Variação %',e=>e.pc,'pct'),C('Litros no novo preço',e=>e.lit,'n2'),C('Impacto R$',e=>e.impacto,'brl'),C('Situação',e=>!e.al?'':e.al.status==='ABERTO'?'A negociar':(e.al.negociacao?e.al.negociacao.resultado:'Tratado')),C('Negociação',e=>e.al&&e.al.notaResolucao||'')],ev)},
+  expCons:()=>{const {rows}=consumoVeiculos(S.cons||newFilter());const cols=[C('Placa',r=>r.v.placa),C('Modelo',r=>(r.v.marca+' '+r.v.modelo).trim()),C('Tipo',r=>r.v.tipo),C('Abastecimentos',r=>r.n,'n0'),C('KM percorrido',r=>r.km,'km'),C('Litros',r=>r.lit,'n2'),C('km/L médio',r=>r.media,'n2'),C('Referência km/L',r=>r.ref,'n2'),C('Tipo de referência',r=>r.refTipo),C('vs referência %',r=>r.vsRef,'pct'),C('Último km/L',r=>r.ult,'n2'),C('Melhor km/L',r=>r.melhor,'n2'),C('Pior km/L',r=>r.pior,'n2'),C('R$/km',r=>r.custoKm,'n3')];exportTable('xlsx','Consumo por veículo',cols,rows)},
+  impCfg:()=>{if(!IMP||!IMP.sugMax)return;const b=cfgG(),nc={...b,distMax:IMP.sugMax};put('config',nc);addAudit({acao:'Alteração de configuração',entidade:'Configuração',registro:'Validação de quilometragem',campo:'Distância máxima',anterior:b.distMax,novo:nc.distMax,motivo:'Sugestão da importação de planilha',status:'OK'});toast('Distância máxima ajustada para '+kmf(nc.distMax)+' km.','ok');render()},
+  impRun:async(_,el)=>{
+    if(!IMP||IMP.running)return;IMP.running=true;el.disabled=true;
+    const pg=m=>{const e=$('#impProg');if(e)e.textContent=m};
+    const res=await executarImportacao(pg);
+    IMP.running=false;
+    if(res){IMP.resultado=res;if(IMP.de)aplicarPeriodo(IMP.de,IMP.ate);toast(res.criados+' abastecimentos importados.','ok');render();updateBadges()}else{el.disabled=false}
+  },
   copySql:async()=>{
     const sql=((document.getElementById('kmlogSchema')||{}).textContent||'').trim();
     try{await navigator.clipboard.writeText(sql);toast('SQL copiado. Cole no Supabase: SQL Editor > New query > Run.','ok')}
@@ -2822,7 +3393,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{
   const el=e.target.closest('[data-f]');if(!el)return;
   const [k,f]=el.dataset.f.split('.');S[k][f]=el.value;
-  if(k==='rel'&&f==='tipo'&&el.value==='mensal')S.rel.mes=S.rel.mes||today().slice(0,7);
+  if(k==='rel'&&f==='tipo'&&el.value==='mensal')S.rel.mes=S.rel.mes||mesAtual();
   render();
 });
 document.addEventListener('change',e=>{if(e.target.id==='restoreFile'&&e.target.files[0]){const f=e.target.files[0];e.target.value='';restoreFromFile(f)}});
